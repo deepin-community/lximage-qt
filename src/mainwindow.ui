@@ -83,6 +83,8 @@
     <addaction name="actionScreenshot"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
+    <addaction name="actionUpload"/>
+    <addaction name="separator"/>
     <addaction name="actionDelete"/>
     <addaction name="separator"/>
     <addaction name="actionFileProperties"/>
@@ -95,6 +97,7 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="actionHiddenShortcuts"/>
    </widget>
    <widget class="QMenu" name="menuGo">
     <property name="title">
@@ -109,6 +112,16 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
+    <widget class="QMenu" name="menuSorting">
+     <property name="title">
+      <string>Sorting</string>
+     </property>
+     <addaction name="actionByFileName"/>
+     <addaction name="actionByMTime"/>
+     <addaction name="actionByCrTime"/>
+     <addaction name="actionByFileSize"/>
+     <addaction name="actionByFileType"/>
+    </widget>
     <addaction name="actionZoomIn"/>
     <addaction name="actionZoomOut"/>
     <addaction name="actionOriginalSize"/>
@@ -121,7 +134,11 @@
     <addaction name="actionFullScreen"/>
     <addaction name="actionSlideShow"/>
     <addaction name="separator"/>
+    <addaction name="actionMenubar"/>
+    <addaction name="actionToolbar"/>
     <addaction name="actionAnnotations"/>
+    <addaction name="separator"/>
+    <addaction name="menuSorting"/>
    </widget>
    <widget class="QMenu" name="menu_Edit">
     <property name="title">
@@ -137,8 +154,7 @@
     <addaction name="actionPaste"/>
     <addaction name="separator"/>
     <addaction name="actionCopyPath"/>
-    <addaction name="separator"/>
-    <addaction name="actionUpload"/>
+    <addaction name="actionRenameFile"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
    </widget>
@@ -206,6 +222,11 @@
    </property>
    <property name="text">
     <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="actionHiddenShortcuts">
+   <property name="text">
+    <string>Hidden &amp;Shortcuts</string>
    </property>
   </action>
   <action name="actionOpenFile">
@@ -539,6 +560,9 @@
    <property name="toolTip">
     <string>Upload the image</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
+   </property>
   </action>
   <action name="actionShowExifData">
    <property name="checkable">
@@ -623,6 +647,31 @@
     <string>Draw incrementing numbers</string>
    </property>
   </action>
+  <action name="actionMenubar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Menubar</string>
+   </property>
+   <property name="toolTip">
+    <string>Menubar</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionToolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Main Toolbar</string>
+   </property>
+   <property name="toolTip">
+    <string>Main Toolbar</string>
+   </property>
+  </action>
   <action name="actionAnnotations">
    <property name="checkable">
     <bool>true</bool>
@@ -659,6 +708,20 @@
     <string>Copy path</string>
    </property>
   </action>
+  <action name="actionRenameFile">
+   <property name="icon">
+    <iconset theme="edit-rename"/>
+   </property>
+   <property name="text">
+    <string>Rename</string>
+   </property>
+   <property name="toolTip">
+    <string>Rename</string>
+   </property>
+   <property name="shortcut">
+    <string>F2</string>
+   </property>
+  </action>
   <action name="actionResize">
    <property name="icon">
     <iconset>
@@ -666,6 +729,61 @@
    </property>
    <property name="text">
     <string>Resize</string>
+   </property>
+  </action>
+  <action name="actionByFileName">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;By File Name</string>
+   </property>
+   <property name="toolTip">
+    <string>By File Name</string>
+   </property>
+  </action>
+  <action name="actionByMTime">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>By &amp;Modification Time</string>
+   </property>
+   <property name="toolTip">
+    <string>By Modification Time</string>
+   </property>
+  </action>
+  <action name="actionByCrTime">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>By C&amp;reation Time</string>
+   </property>
+   <property name="toolTip">
+    <string>By Creation Time</string>
+   </property>
+  </action>
+  <action name="actionByFileSize">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>By File &amp;Size</string>
+   </property>
+   <property name="toolTip">
+    <string>By File Size</string>
+   </property>
+  </action>
+  <action name="actionByFileType">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>By File &amp;Type</string>
+   </property>
+   <property name="toolTip">
+    <string>By File Type</string>
    </property>
   </action>
  </widget>

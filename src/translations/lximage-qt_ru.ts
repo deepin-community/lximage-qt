@@ -2,34 +2,116 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ru">
 <context>
-    <name>LxImage::Application</name>
+    <name>HiddenShortcutsDialog</name>
     <message>
-        <location filename="../application.cpp" line="96"/>
-        <source>Take a screenshot (deprecated, please use screengrab instead)</source>
-        <translation type="unfinished"></translation>
+        <location filename="../shortcuts.ui" line="14"/>
+        <source>Hidden Shortcuts</source>
+        <translation>Скрытые сочетания клавиш</translation>
     </message>
     <message>
-        <location filename="../application.cpp" line="105"/>
-        <source>DIR</source>
-        <translation>ДИРЕКТОРИЯ</translation>
+        <location filename="../shortcuts.ui" line="20"/>
+        <source>These hard coded shortcuts will be overridden if they are also assigned to other actions in Preferences → Shortcuts.</source>
+        <translation>Эти жестко запрограммированные сочетания клавиш будут переопределены, если они также назначены другим действиям в «Настройки» → «Сочетания клавиш».</translation>
     </message>
     <message>
-        <location filename="../application.cpp" line="105"/>
-        <source>Take a screenshot and save it to the directory without showing the GUI (deprecated, please use screengrab instead)</source>
-        <translation type="unfinished"></translation>
+        <location filename="../shortcuts.ui" line="34"/>
+        <source>Shortcut</source>
+        <translation>Сочетание клавиш</translation>
     </message>
     <message>
-        <location filename="../application.cpp" line="111"/>
-        <source>[FILE1, FILE2,...]</source>
-        <translation>[ФАЙЛ1, ФАЙЛ2, ...]</translation>
+        <location filename="../shortcuts.ui" line="39"/>
+        <source>Action</source>
+        <translation>Действие</translation>
+    </message>
+    <message>
+        <location filename="../shortcuts.ui" line="44"/>
+        <source>Esc</source>
+        <translation>Esc</translation>
+    </message>
+    <message>
+        <location filename="../shortcuts.ui" line="47"/>
+        <source>Close window or exit fullscreen mode</source>
+        <translation>Закрыть окно или выйти из полноэкранного режима</translation>
+    </message>
+    <message>
+        <location filename="../shortcuts.ui" line="52"/>
+        <source>Right</source>
+        <translation>Вправо</translation>
+    </message>
+    <message>
+        <location filename="../shortcuts.ui" line="55"/>
+        <location filename="../shortcuts.ui" line="63"/>
+        <source>Next image</source>
+        <translation>Следующее изображение</translation>
+    </message>
+    <message>
+        <location filename="../shortcuts.ui" line="60"/>
+        <source>Space</source>
+        <translation>Пробел</translation>
+    </message>
+    <message>
+        <location filename="../shortcuts.ui" line="68"/>
+        <source>End</source>
+        <translation>В конец (End)</translation>
+    </message>
+    <message>
+        <location filename="../shortcuts.ui" line="71"/>
+        <source>Last image</source>
+        <translation>Последнее изображение</translation>
+    </message>
+    <message>
+        <location filename="../shortcuts.ui" line="76"/>
+        <source>Left</source>
+        <translation>Влево</translation>
+    </message>
+    <message>
+        <location filename="../shortcuts.ui" line="79"/>
+        <location filename="../shortcuts.ui" line="87"/>
+        <source>Previous image</source>
+        <translation>Предыдущее изображение</translation>
+    </message>
+    <message>
+        <location filename="../shortcuts.ui" line="84"/>
+        <source>Backspace</source>
+        <translation>Backspace</translation>
+    </message>
+    <message>
+        <location filename="../shortcuts.ui" line="92"/>
+        <source>Home</source>
+        <translation>В начало (Home)</translation>
+    </message>
+    <message>
+        <location filename="../shortcuts.ui" line="95"/>
+        <source>First image</source>
+        <translation>Первое изображение</translation>
     </message>
 </context>
 <context>
-    <name>LxImage::ImageShackUpload</name>
+    <name>LxImage::Application</name>
     <message>
-        <location filename="../upload/imageshackupload.cpp" line="50"/>
-        <source>unknown error response</source>
-        <translation>неизвестная ошибка</translation>
+        <location filename="../application.cpp" line="94"/>
+        <source>Start in fullscreen (can be useful with tiling window managers)</source>
+        <translation>Запускать в полноэкранном режиме (может быть полезно для фреймовых оконных менеджеров)</translation>
+    </message>
+    <message>
+        <location filename="../application.cpp" line="102"/>
+        <source>Take a screenshot (deprecated, please use screengrab instead)</source>
+        <translation>Сделать снимок экрана (устарело, используйте вместо этого screengrab)</translation>
+    </message>
+    <message>
+        <location filename="../application.cpp" line="111"/>
+        <source>DIR</source>
+        <translation>КАТАЛОГ</translation>
+    </message>
+    <message>
+        <location filename="../application.cpp" line="111"/>
+        <source>Take a screenshot and save it to the directory without showing the GUI (deprecated, please use screengrab instead)</source>
+        <translation>Сделать снимок экрана и сохранить его в указанный КАТАЛОГ без показа самой программы (устарело, используйте вместо этого screengrab)</translation>
+    </message>
+    <message>
+        <location filename="../application.cpp" line="117"/>
+        <source>[FILE1, FILE2,...]</source>
+        <translation>[ФАЙЛ1, ФАЙЛ2, ...]</translation>
     </message>
 </context>
 <context>
@@ -51,75 +133,88 @@
 <context>
     <name>LxImage::MainWindow</name>
     <message>
-        <location filename="../mainwindow.cpp" line="204"/>
+        <location filename="../mainwindow.cpp" line="278"/>
         <source>About</source>
         <translation>О программе</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="205"/>
-        <source>LXImage-Qt - a simple and fast image viewer
-
-Copyright (C) 2013
-LXQt Project: https://lxqt.org/
-
-Authors:
-Hong Jen Yee (PCMan) &lt;pcman.tw@gmail.com&gt;</source>
-        <translation>LXImage-Qt - простой и быстрый просмотрщик изображений
-
-Copyright (C) 2013
-Проект LXQt: https://lxqt.org/
-
-Авторы:
-Хон Джене (PCMan) &lt;pcman.tw@gmail.com&gt;</translation>
+        <location filename="../mainwindow.cpp" line="280"/>
+        <source>A simple and fast image viewer</source>
+        <translation>Простой и быстрый просмотрщик изображений</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="360"/>
+        <location filename="../mainwindow.cpp" line="282"/>
+        <source>Copyright (C) </source>
+        <translation>Авторские права (C) </translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="282"/>
+        <source>2013-2021</source>
+        <translation>2013-2021</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="284"/>
+        <source>LXQt Project</source>
+        <translation>Проект LXQt</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="286"/>
+        <source>Development: </source>
+        <translation>Разработка: </translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="288"/>
+        <source>Author: </source>
+        <translation>Автор: </translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="516"/>
         <source>Open File</source>
         <translation>Открыть файл</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="361"/>
-        <location filename="../mainwindow.cpp" line="396"/>
+        <location filename="../mainwindow.cpp" line="517"/>
+        <location filename="../mainwindow.cpp" line="552"/>
         <source>Image files (%1)</source>
         <translation>Файлы изображений (%1)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="374"/>
+        <location filename="../mainwindow.cpp" line="530"/>
         <source>Open directory</source>
         <translation>Открыть каталог</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="395"/>
+        <location filename="../mainwindow.cpp" line="551"/>
         <source>Save File</source>
         <translation>Сохранить файл</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="683"/>
+        <location filename="../mainwindow.cpp" line="847"/>
         <source>[*]%1 (Loading...) - Image Viewer</source>
         <translation>[*]%1 (Загружается...) - Просмотрщик изображений</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="689"/>
+        <location filename="../mainwindow.cpp" line="853"/>
         <source>[*]%1 (Failed to Load) - Image Viewer</source>
         <translation>[*]%1 (Ошибка загрузки) - Просмотрщик изображений</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="695"/>
+        <location filename="../mainwindow.cpp" line="859"/>
         <source>[*]%1 (%2x%3) - Image Viewer</source>
         <translation>[*]%1 (%2x%3) - Просмотрщик изображений</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="741"/>
+        <location filename="../mainwindow.cpp" line="905"/>
         <source>[*]Image Viewer</source>
         <translation>[*]Просмотрщик изображений</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1167"/>
+        <location filename="../mainwindow.cpp" line="1302"/>
         <source>Thumbnails</source>
         <translation>Эскизы</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1217"/>
+        <location filename="../mainwindow.cpp" line="1397"/>
         <source>EXIF Data</source>
         <translation>Данные EXIF</translation>
     </message>
@@ -138,16 +233,31 @@ Copyright (C) 2013
         <location filename="../preferencesdialog.cpp" line="74"/>
         <source>Use a modifier key to clear a shortcut
 in the editing mode.</source>
-        <translation>Используйте клавишу-модификатор, чтобы очистить
-комбинацию клавиш в режиме редактирования.</translation>
+        <translation>Используйте клавишу-модификатор, чтобы сбросить
+сочетание клавиш в режиме редактирования.</translation>
     </message>
     <message>
-        <location filename="../preferencesdialog.cpp" line="283"/>
+        <location filename="../preferencesdialog.cpp" line="213"/>
+        <source>Bottom</source>
+        <translation>Внизу</translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.cpp" line="214"/>
+        <source>Top</source>
+        <translation>Вверху</translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.cpp" line="215"/>
+        <source>Left</source>
+        <translation>Слева</translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.cpp" line="341"/>
         <source>&lt;b&gt;Warning: Ambiguous shortcut detected!&lt;/b&gt;</source>
         <translation>&lt;b&gt;Внимание: обнаружено неоднозначное сочетание клавиш!&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../preferencesdialog.cpp" line="300"/>
+        <location filename="../preferencesdialog.cpp" line="358"/>
         <source>&lt;b&gt;Ambiguous shortcut not accepted.&lt;/b&gt;</source>
         <translation>&lt;b&gt;Неоднозначное сочетание клавиш не принято.&lt;/b&gt;</translation>
     </message>
@@ -176,37 +286,32 @@ in the editing mode.</source>
 <context>
     <name>LxImage::UploadDialog</name>
     <message>
-        <location filename="../upload/uploaddialog.cpp" line="52"/>
+        <location filename="../upload/uploaddialog.cpp" line="50"/>
         <source>Imgur</source>
         <translation>Imgur</translation>
     </message>
     <message>
-        <location filename="../upload/uploaddialog.cpp" line="53"/>
+        <location filename="../upload/uploaddialog.cpp" line="51"/>
         <source>ImgBB</source>
         <translation>ImgBB</translation>
     </message>
     <message>
-        <location filename="../upload/uploaddialog.cpp" line="54"/>
-        <source>ImageShack</source>
-        <translation>ImageShack</translation>
-    </message>
-    <message>
-        <location filename="../upload/uploaddialog.cpp" line="137"/>
+        <location filename="../upload/uploaddialog.cpp" line="134"/>
         <source>Start</source>
         <translation>Запустить</translation>
     </message>
     <message>
-        <location filename="../upload/uploaddialog.cpp" line="140"/>
+        <location filename="../upload/uploaddialog.cpp" line="137"/>
         <source>Stop</source>
         <translation>Остановить</translation>
     </message>
     <message>
-        <location filename="../upload/uploaddialog.cpp" line="143"/>
+        <location filename="../upload/uploaddialog.cpp" line="140"/>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
     <message>
-        <location filename="../upload/uploaddialog.cpp" line="150"/>
+        <location filename="../upload/uploaddialog.cpp" line="147"/>
         <source>Error</source>
         <translation>Ошибка</translation>
     </message>
@@ -219,85 +324,85 @@ in the editing mode.</source>
         <translation>Просмотрщик изображений</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="188"/>
-        <location filename="../mainwindow.ui" line="634"/>
+        <location filename="../mainwindow.ui" line="204"/>
+        <location filename="../mainwindow.ui" line="683"/>
         <source>Annotations Toolbar</source>
         <translation>Панель примечаний</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="208"/>
+        <location filename="../mainwindow.ui" line="224"/>
         <source>&amp;About</source>
         <translation>&amp;О программе</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="220"/>
+        <location filename="../mainwindow.ui" line="241"/>
         <source>Ctrl+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="241"/>
+        <location filename="../mainwindow.ui" line="262"/>
         <source>&amp;Save</source>
         <translation>&amp;Сохранить</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="244"/>
+        <location filename="../mainwindow.ui" line="265"/>
         <source>Ctrl+S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="253"/>
+        <location filename="../mainwindow.ui" line="274"/>
         <source>Save &amp;As</source>
         <translation>Сохранить &amp;как</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="256"/>
+        <location filename="../mainwindow.ui" line="277"/>
         <source>Ctrl+A</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="265"/>
+        <location filename="../mainwindow.ui" line="286"/>
         <source>&amp;Close</source>
         <translation>&amp;Закрыть</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="268"/>
+        <location filename="../mainwindow.ui" line="289"/>
         <source>Ctrl+W</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="277"/>
+        <location filename="../mainwindow.ui" line="298"/>
         <source>Zoom &amp;In</source>
         <translation>При&amp;близить</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="289"/>
+        <location filename="../mainwindow.ui" line="310"/>
         <source>Zoom &amp;Out</source>
         <translation>От&amp;далить</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="292"/>
+        <location filename="../mainwindow.ui" line="313"/>
         <source>Ctrl+-</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="301"/>
+        <location filename="../mainwindow.ui" line="322"/>
         <source>&amp;Copy to Clipboard</source>
         <translation>Скопировать в &amp;буфер обмена</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="310"/>
-        <location filename="../mainwindow.ui" line="313"/>
+        <location filename="../mainwindow.ui" line="331"/>
+        <location filename="../mainwindow.ui" line="334"/>
         <source>Next File</source>
         <translation>Следующий файл</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="325"/>
-        <location filename="../mainwindow.ui" line="328"/>
+        <location filename="../mainwindow.ui" line="346"/>
+        <location filename="../mainwindow.ui" line="349"/>
         <source>Previous File</source>
         <translation>Предыдущий файл</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="316"/>
+        <location filename="../mainwindow.ui" line="337"/>
         <source>PgDown</source>
         <translation></translation>
     </message>
@@ -312,285 +417,382 @@ in the editing mode.</source>
         <translation>&amp;Последние файлы</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="217"/>
+        <location filename="../mainwindow.ui" line="117"/>
+        <source>Sorting</source>
+        <translation>Сортировка</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="229"/>
+        <source>Hidden &amp;Shortcuts</source>
+        <translation>Скрытые &amp;сочетания клавиш</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="238"/>
         <source>&amp;Open…</source>
         <translation>&amp;Открыть…</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="229"/>
+        <location filename="../mainwindow.ui" line="250"/>
         <source>&amp;Reload File</source>
         <translation>Пере&amp;загрузить файл</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="232"/>
+        <location filename="../mainwindow.ui" line="253"/>
         <source>Ctrl+R</source>
         <translation>Ctrl+R</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="280"/>
+        <location filename="../mainwindow.ui" line="301"/>
         <source>Ctrl+=</source>
         <translation>Ctrl+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="331"/>
+        <location filename="../mainwindow.ui" line="352"/>
         <source>PgUp</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="343"/>
+        <location filename="../mainwindow.ui" line="364"/>
         <source>Original Size</source>
         <translation>Исходный размер</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="346"/>
+        <location filename="../mainwindow.ui" line="367"/>
         <source>Ctrl+0</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="358"/>
+        <location filename="../mainwindow.ui" line="379"/>
         <source>&amp;Fit</source>
         <translation>&amp;Заполнить</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="367"/>
+        <location filename="../mainwindow.ui" line="388"/>
         <source>&amp;Rotate Clockwise</source>
         <translation>Пове&amp;рнуть по часовой стрелке</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="370"/>
+        <location filename="../mainwindow.ui" line="391"/>
         <source>R</source>
         <translation>R</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="379"/>
+        <location filename="../mainwindow.ui" line="400"/>
         <source>Rotate &amp;Counterclockwise</source>
         <translation>Повернуть &amp;против часовой стрелки</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="382"/>
+        <location filename="../mainwindow.ui" line="403"/>
         <source>L</source>
         <translation>L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="387"/>
+        <location filename="../mainwindow.ui" line="408"/>
         <source>P&amp;references</source>
         <translation>&amp;Настройки</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="392"/>
+        <location filename="../mainwindow.ui" line="413"/>
         <source>&amp;Print</source>
         <translation>&amp;Печать</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="395"/>
+        <location filename="../mainwindow.ui" line="416"/>
         <source>Ctrl+P</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="404"/>
+        <location filename="../mainwindow.ui" line="425"/>
         <source>First File</source>
         <translation>Первый файл</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="407"/>
+        <location filename="../mainwindow.ui" line="428"/>
         <source>Home</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="416"/>
+        <location filename="../mainwindow.ui" line="437"/>
         <source>Last File</source>
         <translation>Последний файл</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="419"/>
+        <location filename="../mainwindow.ui" line="440"/>
         <source>End</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="428"/>
+        <location filename="../mainwindow.ui" line="449"/>
         <source>&amp;New Window</source>
         <translation>&amp;Новое окно</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="431"/>
+        <location filename="../mainwindow.ui" line="452"/>
         <source>Ctrl+N</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="436"/>
+        <location filename="../mainwindow.ui" line="457"/>
         <source>Flip &amp;Horizontally</source>
         <translation>Отразить &amp;горизонтально</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="439"/>
+        <location filename="../mainwindow.ui" line="460"/>
         <source>H</source>
         <translation>H</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="448"/>
+        <location filename="../mainwindow.ui" line="469"/>
         <source>Capture Screenshot</source>
         <translation>Сделать снимок экрана</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="456"/>
+        <location filename="../mainwindow.ui" line="477"/>
         <source>F&amp;ull Screen</source>
         <translation>Полный &amp;экран</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="459"/>
+        <location filename="../mainwindow.ui" line="480"/>
         <source>F11</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="464"/>
+        <location filename="../mainwindow.ui" line="485"/>
         <source>Flip &amp;Vertically</source>
         <translation>Отразить &amp;вертикально</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="467"/>
+        <location filename="../mainwindow.ui" line="488"/>
         <source>V</source>
         <translation>V</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="476"/>
+        <location filename="../mainwindow.ui" line="497"/>
         <source>&amp;Paste from Clipboard</source>
         <translation>&amp;Вставить из буфера обмена</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="488"/>
+        <location filename="../mainwindow.ui" line="509"/>
         <source>&amp;Slide Show</source>
         <translation>&amp;Слайд-шоу</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="497"/>
+        <location filename="../mainwindow.ui" line="518"/>
         <source>&amp;Delete</source>
         <translation>&amp;Удалить</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="500"/>
+        <location filename="../mainwindow.ui" line="521"/>
         <source>Del</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="508"/>
+        <location filename="../mainwindow.ui" line="529"/>
         <source>Show Thumbnails</source>
         <translation>Показывать эскизы</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="511"/>
+        <location filename="../mainwindow.ui" line="532"/>
         <source>T</source>
         <translation>T</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="516"/>
+        <location filename="../mainwindow.ui" line="537"/>
         <source>File Properties</source>
         <translation>Свойства файла</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="525"/>
+        <location filename="../mainwindow.ui" line="546"/>
         <source>Open &amp;Directory</source>
         <translation>Открыть &amp;каталог</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="528"/>
+        <location filename="../mainwindow.ui" line="549"/>
         <source>Ctrl+D</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="537"/>
+        <location filename="../mainwindow.ui" line="558"/>
         <source>Upload</source>
-        <translation>Загрузить на сервер</translation>
+        <translation>Отправить</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="540"/>
+        <location filename="../mainwindow.ui" line="561"/>
         <source>Upload the image</source>
         <translation>Загрузить изображение</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="548"/>
+        <location filename="../mainwindow.ui" line="564"/>
+        <source>Ctrl+U</source>
+        <translation>Ctrl+U</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="572"/>
         <source>Show EXIF Data</source>
         <translation>Показать данные EXIF</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="560"/>
+        <location filename="../mainwindow.ui" line="584"/>
         <source>No Tool</source>
         <translation>Без инструмента</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="563"/>
+        <location filename="../mainwindow.ui" line="587"/>
         <source>Deselect all drawing tools</source>
         <translation>Отменить выбор инструмента рисования</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="575"/>
+        <location filename="../mainwindow.ui" line="599"/>
         <source>Draw Arrow</source>
         <translation>Нарисовать стрелку</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="578"/>
+        <location filename="../mainwindow.ui" line="602"/>
         <source>Draw an arrow</source>
         <translation>Нарисовать стрелку</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="590"/>
+        <location filename="../mainwindow.ui" line="614"/>
         <source>Draw Rectangle</source>
         <translation>Нарисовать прямоугольник</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="593"/>
+        <location filename="../mainwindow.ui" line="617"/>
         <source>Draw a hollow rectangle</source>
         <translation>Нарисовать прямоугольник (без заливки)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="605"/>
+        <location filename="../mainwindow.ui" line="629"/>
         <source>Draw Circle</source>
         <translation>Нарисовать круг</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="608"/>
+        <location filename="../mainwindow.ui" line="632"/>
         <source>Draw a hollow circle</source>
         <translation>Нарисовать окружность</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="620"/>
+        <location filename="../mainwindow.ui" line="644"/>
         <source>Draw Number</source>
         <translation>Нарисовать число</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="623"/>
+        <location filename="../mainwindow.ui" line="647"/>
         <source>Draw incrementing numbers</source>
         <translation>Нарисовать число (с увеличением счётчика)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="631"/>
+        <location filename="../mainwindow.ui" line="655"/>
+        <location filename="../mainwindow.ui" line="658"/>
+        <source>Menubar</source>
+        <translation>Панель меню</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="661"/>
+        <source>Ctrl+M</source>
+        <translation>Ctrl+M</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="669"/>
+        <source>&amp;Main Toolbar</source>
+        <translation>&amp;Главная панель инструментов</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="672"/>
+        <source>Main Toolbar</source>
+        <translation>Главная панель инструментов</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="680"/>
         <source>&amp;Annotations Toolbar</source>
         <translation>Панель &amp;примечаний</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="642"/>
-        <location filename="../mainwindow.ui" line="645"/>
+        <location filename="../mainwindow.ui" line="691"/>
+        <location filename="../mainwindow.ui" line="694"/>
         <source>Show Outline</source>
         <translation>Показать контур</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="648"/>
+        <location filename="../mainwindow.ui" line="697"/>
         <source>O</source>
         <translation>O</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="656"/>
+        <location filename="../mainwindow.ui" line="705"/>
         <source>Copy Pa&amp;th</source>
         <translation>Скопировать путь</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="659"/>
+        <location filename="../mainwindow.ui" line="708"/>
         <source>Copy path</source>
         <translation>Скопировать путь</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="668"/>
+        <location filename="../mainwindow.ui" line="716"/>
+        <location filename="../mainwindow.ui" line="719"/>
+        <source>Rename</source>
+        <translation>Переименовать</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="722"/>
+        <source>F2</source>
+        <translation>F2</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="731"/>
         <source>Resize</source>
         <translation>Изменить размер</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="739"/>
+        <source>&amp;By File Name</source>
+        <translation>&amp;По имени файла</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="742"/>
+        <source>By File Name</source>
+        <translation>По имени файла</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="750"/>
+        <source>By &amp;Modification Time</source>
+        <translation>По времени &amp;изменения</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="753"/>
+        <source>By Modification Time</source>
+        <translation>По времени изменения</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="761"/>
+        <source>By C&amp;reation Time</source>
+        <translation>По вр&amp;емени создания</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="764"/>
+        <source>By Creation Time</source>
+        <translation>По времени создания</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="772"/>
+        <source>By File &amp;Size</source>
+        <translation>По размеру &amp;файла</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="775"/>
+        <source>By File Size</source>
+        <translation>По размеру файла</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="783"/>
+        <source>By File &amp;Type</source>
+        <translation>&amp;По типу файла</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="786"/>
+        <source>By File Type</source>
+        <translation>По типу файла</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="63"/>
@@ -598,27 +800,27 @@ in the editing mode.</source>
         <translation>&amp;Файл</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="95"/>
+        <location filename="../mainwindow.ui" line="97"/>
         <source>&amp;Help</source>
         <translation>&amp;Справка</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="101"/>
+        <location filename="../mainwindow.ui" line="104"/>
         <source>Go</source>
         <translation>Перейти</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="110"/>
+        <location filename="../mainwindow.ui" line="113"/>
         <source>&amp;View</source>
         <translation>&amp;Вид</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="128"/>
+        <location filename="../mainwindow.ui" line="145"/>
         <source>&amp;Edit</source>
         <translation>&amp;Правка</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="153"/>
+        <location filename="../mainwindow.ui" line="169"/>
         <source>Toolbar</source>
         <translation>Панель инструментов</translation>
     </message>
@@ -636,52 +838,154 @@ in the editing mode.</source>
         <translation>Тема значков:</translation>
     </message>
     <message>
-        <location filename="../preferencesdialog.ui" line="43"/>
+        <location filename="../preferencesdialog.ui" line="53"/>
+        <source>Thumbnailer file size limit:</source>
+        <translation>Ограничение размера файла эскизов:</translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="151"/>
         <source>Normal background color:</source>
         <translation>Обычный цвет фона:</translation>
     </message>
     <message>
-        <location filename="../preferencesdialog.ui" line="50"/>
+        <location filename="../preferencesdialog.ui" line="165"/>
         <source>Fullscreen background color:</source>
         <translation>Цвет фона для режима полного экрана:</translation>
     </message>
     <message>
-        <location filename="../preferencesdialog.ui" line="71"/>
+        <location filename="../preferencesdialog.ui" line="43"/>
         <source>Maximum number of recent files:</source>
         <translation>Максимальное количество последних файлов:</translation>
     </message>
     <message>
-        <location filename="../preferencesdialog.ui" line="81"/>
+        <location filename="../preferencesdialog.ui" line="228"/>
         <source>Slide show interval (seconds):</source>
         <translation>Интервал слайд-шоу (в секундах):</translation>
     </message>
     <message>
-        <location filename="../preferencesdialog.ui" line="95"/>
+        <location filename="../preferencesdialog.ui" line="242"/>
         <source>Show image outline by default</source>
         <translation>Показывать контур изображения по умолчанию</translation>
     </message>
     <message>
-        <location filename="../preferencesdialog.ui" line="102"/>
+        <location filename="../preferencesdialog.ui" line="134"/>
         <source>Show annotations toolbar by default</source>
         <translation>Показывать панель примечаний по умолчанию</translation>
     </message>
     <message>
-        <location filename="../preferencesdialog.ui" line="110"/>
-        <source>Shortcuts</source>
-        <translation>Кнопкосочетания</translation>
+        <location filename="../preferencesdialog.ui" line="249"/>
+        <source>Fit images when navigating</source>
+        <translation>Подгонять изображения при навигации</translation>
     </message>
     <message>
-        <location filename="../preferencesdialog.ui" line="129"/>
+        <location filename="../preferencesdialog.ui" line="60"/>
+        <source> MiB</source>
+        <translation> МиБ</translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="76"/>
+        <source>Thumbnail image dimensions:</source>
+        <translation>Размеры изображения эскиза:</translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="86"/>
+        <source>Use system Trash (and do not prompt)</source>
+        <translation>Использовать системную корзину (и не спрашивать)</translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="94"/>
+        <source>Window</source>
+        <translation>Окно</translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="103"/>
+        <source>Show thumbnails dock by default</source>
+        <translation>Показывать эскизы по умолчанию</translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="113"/>
+        <source>Show Exif data dock by default</source>
+        <translation>Отображать панель метаданных Exif по умолчанию</translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="120"/>
+        <source>Show menubar by default</source>
+        <translation>Отображать панель меню по умолчанию</translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="127"/>
+        <source>Show main toolbar by default</source>
+        <translation>Отображать главную панель инструментов по умолчанию</translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="142"/>
+        <source>Image</source>
+        <translation>Изображение</translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="179"/>
+        <location filename="../preferencesdialog.ui" line="190"/>
+        <source>May work only with images which have valid color spaces.
+Reload current image to see the effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="183"/>
+        <source>Color space:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="195"/>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="200"/>
+        <source>sRGB (supported by most monitors)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="205"/>
+        <source>Linear sRGB (linear gamma)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="210"/>
+        <source>Adobe RGB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="215"/>
+        <source>DisplayP3 (wide-gamut screens)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="220"/>
+        <source>ProPhotoRgb</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="256"/>
+        <source>Smooth images on zooming</source>
+        <translation>Сглаживать изображения при масштабировании</translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="264"/>
+        <source>Shortcuts</source>
+        <translation>Сочетания клавиш</translation>
+    </message>
+    <message>
+        <location filename="../preferencesdialog.ui" line="283"/>
         <source>Action</source>
         <translation>Действие</translation>
     </message>
     <message>
-        <location filename="../preferencesdialog.ui" line="134"/>
+        <location filename="../preferencesdialog.ui" line="288"/>
         <source>Shortcut</source>
         <translation>Сочетание клавиш</translation>
     </message>
     <message>
-        <location filename="../preferencesdialog.ui" line="142"/>
+        <location filename="../preferencesdialog.ui" line="296"/>
         <source>Default</source>
         <translation>По умолчанию</translation>
     </message>
@@ -694,9 +998,9 @@ in the editing mode.</source>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../mainwindow.cpp" line="830"/>
+        <location filename="../mainwindow.cpp" line="997"/>
         <source>Error</source>
-        <translation type="unfinished">Ошибка</translation>
+        <translation>Ошибка</translation>
     </message>
 </context>
 <context>
@@ -704,44 +1008,44 @@ in the editing mode.</source>
     <message>
         <location filename="../resizeimagedialog.ui" line="14"/>
         <source>Resize Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменение размера изображения</translation>
     </message>
     <message>
         <location filename="../resizeimagedialog.ui" line="26"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Ширина</translation>
     </message>
     <message>
         <location filename="../resizeimagedialog.ui" line="33"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Высота</translation>
     </message>
     <message>
         <location filename="../resizeimagedialog.ui" line="40"/>
         <source>Current size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Текущий размер:</translation>
     </message>
     <message>
         <location filename="../resizeimagedialog.ui" line="80"/>
         <source>New size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Новый размер:</translation>
     </message>
     <message>
         <location filename="../resizeimagedialog.ui" line="93"/>
         <location filename="../resizeimagedialog.ui" line="116"/>
         <source> px</source>
-        <translation type="unfinished"></translation>
+        <translation> пикс</translation>
     </message>
     <message>
         <location filename="../resizeimagedialog.ui" line="129"/>
         <location filename="../resizeimagedialog.ui" line="158"/>
         <source> %</source>
-        <translation type="unfinished"></translation>
+        <translation> %</translation>
     </message>
     <message>
         <location filename="../resizeimagedialog.ui" line="174"/>
         <source>Keep aspect ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Не изменять соотношение сторон</translation>
     </message>
 </context>
 <context>
@@ -784,7 +1088,7 @@ in the editing mode.</source>
     <message>
         <location filename="../screenshotdialog.ui" line="74"/>
         <source> sec</source>
-        <translation type="unfinished"></translation>
+        <translation> с</translation>
     </message>
     <message>
         <location filename="../screenshotdialog.ui" line="91"/>
@@ -802,7 +1106,7 @@ in the editing mode.</source>
     <message>
         <location filename="../upload/uploaddialog.ui" line="14"/>
         <source>Upload</source>
-        <translation>Загрузить на сервер</translation>
+        <translation>Отправить</translation>
     </message>
     <message>
         <location filename="../upload/uploaddialog.ui" line="39"/>

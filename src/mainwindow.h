@@ -29,6 +29,7 @@
 
 #include <QTableWidget>
 #include <QLabel>
+#include <QShortcut>
 
 #include <libfm-qt/foldermodel.h>
 #include <libfm-qt/proxyfoldermodel.h>
@@ -70,8 +71,17 @@ public:
   }
 
   void setShowThumbnails(bool show);
+  void updateThumbnails();
+
   void setShowExifData(bool show);
   void applySettings();
+
+  void showAndRaise();
+  void setShowFullScreen(bool value) {
+    showFullScreen_ = value;
+  }
+
+  void setShortcuts(bool update = false);
 
 protected:
   void loadImage(const Fm::FilePath & filePath, QModelIndex index = QModelIndex());
@@ -89,7 +99,9 @@ protected:
 
   virtual bool eventFilter(QObject* watched, QEvent* event);
 private Q_SLOTS:
+  void on_actionMenubar_triggered(bool checked);
   void on_actionAbout_triggered();
+  void on_actionHiddenShortcuts_triggered();
 
   void on_actionOpenFile_triggered();
   void on_actionOpenDirectory_triggered();
@@ -109,6 +121,7 @@ private Q_SLOTS:
   void on_actionResize_triggered();
   void on_actionCopy_triggered();
   void on_actionCopyPath_triggered();
+  void on_actionRenameFile_triggered();
   void on_actionPaste_triggered();
   void on_actionUpload_triggered();
 
@@ -135,6 +148,15 @@ private Q_SLOTS:
   void on_actionDrawRectangle_triggered();
   void on_actionDrawCircle_triggered();
   void on_actionDrawNumber_triggered();
+
+  void on_actionByFileName_triggered(bool checked);
+  void on_actionByMTime_triggered(bool checked);
+  void on_actionByCrTime_triggered(bool checked);
+  void on_actionByFileSize_triggered(bool checked);
+  void on_actionByFileType_triggered(bool checked);
+
+  void onSortFilterChanged();
+  void sortMenuAboutToShow();
 
   void onContextMenu(QPoint pos);
   void onKeyboardEscape();
@@ -179,9 +201,6 @@ private:
 
   // EXIF Data
   QDockWidget* exifDataDock_ = nullptr;
-  QWidget* exifDataDockView_;
-  QVBoxLayout* exifDataDockViewContent_;
-  QTableWidget* exifDataContentTable_;
 
   QMap<QString, QString> exifData_;
 
@@ -190,6 +209,10 @@ private:
   SaveImageJob* saveJob_;
 
   QPointer<Fm::FileMenu> fileMenu_;
+
+  bool showFullScreen_;
+
+  QMap<int, QShortcut*> hardCodedShortcuts_; // may be overridden by custom shortcuts
 };
 
 }

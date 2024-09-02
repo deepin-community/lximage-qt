@@ -27,8 +27,6 @@ set(lximage-qt_SRCS
     mrumenu.cpp
     statusbar.cpp
 
-    upload/imageshackprovider.cpp
-    upload/imageshackupload.cpp
     upload/imgbbprovider.cpp
     upload/imgbbupload.cpp
     upload/imgurprovider.cpp
@@ -41,7 +39,7 @@ set(lximage-qt_SRCS
 )
 
 qt5_add_dbus_adaptor(lximage-qt_DBUS_SRCS
-    org.lxde.LxImage.Application.xml
+    org.lxqt.LxImage.Application.xml
     application.h
     LxImage::Application
     applicationadaptor
@@ -55,6 +53,7 @@ set(lximage-qt_UIS
     preferencesdialog.ui
     resizeimagedialog.ui
     screenshotdialog.ui
+    shortcuts.ui
 
     upload/uploaddialog.ui
 )
@@ -77,7 +76,7 @@ set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM true)
 include(LXQtTranslateDesktop)
 
 file(GLOB desktop_files_in ../data/*.desktop.in)
-lxqt_translate_desktop(desktop_files SOURCES ${desktop_files_in})
+lxqt_translate_desktop(desktop_files SOURCES ${desktop_files_in} USE_YAML)
 install(FILES ${desktop_files} DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 
 add_executable(lximage-qt

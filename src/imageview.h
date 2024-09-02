@@ -41,9 +41,6 @@ public:
   ImageView(QWidget* parent = nullptr);
   virtual ~ImageView();
 
-  QGraphicsItem* imageGraphicsItem() const;
-  QGraphicsItem* outlineGraphicsItem() const;
-
   void setImage(const QImage& image, bool show = true);
   void setGifAnimation(const QString& fileName);
   void setSVG(const QString& fileName);
@@ -71,6 +68,15 @@ public:
   void setAutoZoomFit(bool value) {
     autoZoomFit_ = value;
   }
+
+  void setSmoothOnZoom(bool value) {
+    smoothOnZoom_ = value;
+  }
+
+  // transformations
+  void rotateImage(bool clockwise);
+  void flipImage(bool horizontal);
+  bool resizeImage(const QSize& newSize);
 
   // if set to true, hides the cursor after 3s of inactivity
   void hideCursor(bool enable);
@@ -102,6 +108,7 @@ protected:
   virtual void paintEvent(QPaintEvent* event);
 
 private:
+  QGraphicsItem* imageGraphicsItem() const;
   void queueGenerateCache();
   QRect viewportToScene(const QRect& rect);
   QRect sceneToViewport(const QRectF& rect);
@@ -114,7 +121,7 @@ private:
                  qreal tipAngle,
                  int tipLen);
 
-  void removeAnnotations();
+  void resetView();
 
 private Q_SLOTS:
   void onFileDropped(const QString file);
@@ -134,6 +141,7 @@ private:
   QTimer *cursorTimer_; // for hiding cursor in fullscreen mode
   double scaleFactor_;
   bool autoZoomFit_;
+  bool smoothOnZoom_;
   bool isSVG; // is the image an SVG file?
   Tool currentTool; // currently selected tool
   QPoint startPoint; // starting point for the tool

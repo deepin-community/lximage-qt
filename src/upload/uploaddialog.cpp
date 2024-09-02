@@ -27,7 +27,6 @@
 #include <QPushButton>
 #include <QVariant>
 
-#include "imageshackprovider.h"
 #include "imgbbprovider.h"
 #include "imgurprovider.h"
 #include "provider.h"
@@ -38,7 +37,6 @@ using namespace LxImage;
 
 ImgurProvider gImgurProvider;
 ImgBBProvider gImgBBProvider;
-ImageShackProvider gImageShackProvider;
 
 UploadDialog::UploadDialog(QWidget *parent, const QString &filename)
     : QDialog(parent),
@@ -51,7 +49,6 @@ UploadDialog::UploadDialog(QWidget *parent, const QString &filename)
     // Populate the list of providers
     ui.providerComboBox->addItem(tr("Imgur"), QVariant::fromValue(&gImgurProvider));
     ui.providerComboBox->addItem(tr("ImgBB"), QVariant::fromValue(&gImgBBProvider));
-    ui.providerComboBox->addItem(tr("ImageShack"), QVariant::fromValue(&gImageShackProvider));
 
     updateUi();
 }
@@ -96,7 +93,7 @@ void UploadDialog::start()
     connect(mUpload, &Upload::progress, ui.progressBar, &QProgressBar::setValue);
 
     // If the request completes, show the link to the user
-    connect(mUpload, &Upload::completed, [this](const QString &url) {
+    connect(mUpload, &Upload::completed, this, [this](const QString &url) {
         ui.linkLineEdit->setText(url);
         ui.linkLineEdit->selectAll();
 
@@ -105,12 +102,12 @@ void UploadDialog::start()
     });
 
     // If the request fails, show an error
-    connect(mUpload, &Upload::error, [this](const QString &message) {
+    connect(mUpload, &Upload::error, this, [this](const QString &message) {
         showError(message);
     });
 
     // Destroy the upload when it completes
-    connect(mUpload, &Upload::finished, [this]() {
+    connect(mUpload, &Upload::finished, this, [this]() {
         mFile.close();
         mUpload->deleteLater();
         mUpload = nullptr;
