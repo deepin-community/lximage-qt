@@ -27,6 +27,7 @@
 #include <QImage>
 #include <QImageReader>
 #include <QImageWriter>
+#include <QColorSpace>
 #include <QClipboard>
 #include <QPainter>
 #include <QPrintDialog>
@@ -35,10 +36,9 @@
 #include <QMouseEvent>
 #include <QTimer>
 #include <QScreen>
-#include <QShortcut>
+#include <QWindow>
 #include <QDockWidget>
 #include <QScrollBar>
-#include <QGraphicsSvgItem>
 #include <QHeaderView>
 #include <QStandardPaths>
 #include <QDateTime>
@@ -49,10 +49,12 @@
 #include <libfm-qt/filepropsdialog.h>
 #include <libfm-qt/fileoperation.h>
 #include <libfm-qt/folderitemdelegate.h>
+#include <libfm-qt/utilities.h>
 
 #include "mrumenu.h"
 #include "resizeimagedialog.h"
 #include "upload/uploaddialog.h"
+#include "ui_shortcuts.h"
 
 using namespace LxImage;
 
@@ -72,7 +74,8 @@ MainWindow::MainWindow():
   thumbnailsView_(nullptr),
   loadJob_(nullptr),
   saveJob_(nullptr),
-  fileMenu_(nullptr) {
+  fileMenu_(nullptr),
+  showFullScreen_(false) {
 
   setAttribute(Qt::WA_DeleteOnClose); // FIXME: check if current image is saved before close
 
@@ -91,8 +94,11 @@ MainWindow::MainWindow():
   connect(ui.actionPreferences, &QAction::triggered, app , &Application::editPreferences);
 
   proxyModel_->addFilter(modelFilter_);
-  proxyModel_->sort(Fm::FolderModel::ColumnFileName, Qt::AscendingOrder);
+  proxyModel_->sort(settings.sorting(), Qt::AscendingOrder);
   proxyModel_->setSourceModel(folderModel_);
+  connect(proxyModel_, &Fm::ProxyFolderModel::sortFilterChanged, this, &MainWindow::onSortFilterChanged);
+
+  ui.view->setSmoothOnZoom(settings.smoothOnZoom());
 
   // build context menu
   ui.view->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -104,23 +110,47 @@ MainWindow::MainWindow():
 
   // install an event filter on the image view
   ui.view->installEventFilter(this);
+
   ui.view->setBackgroundBrush(QBrush(settings.bgColor()));
+
   ui.view->updateOutline();
+
   ui.view->showOutline(settings.isOutlineShown());
   ui.actionShowOutline->setChecked(settings.isOutlineShown());
 
-  if(settings.showThumbnails())
-    setShowThumbnails(true);
+  setShowExifData(settings.showExifData());
+  ui.actionShowExifData->setChecked(settings.showExifData());
+
+  setShowThumbnails(settings.showThumbnails());
+  ui.actionShowThumbnails->setChecked(settings.showThumbnails());
+
+  addAction(ui.actionMenubar);
+  on_actionMenubar_triggered(settings.isMenubarShown());
+  ui.actionMenubar->setChecked(settings.isMenubarShown());
+
+  ui.toolBar->setVisible(settings.isToolbarShown());
+  ui.actionToolbar->setChecked(settings.isToolbarShown());
+  connect(ui.actionToolbar, &QAction::triggered, this, [this](int checked) {
+    if(!isFullScreen()) { // toolbar is hidden in fullscreen
+      ui.toolBar->setVisible(checked);
+    }
+  });
+  // toolbar visibility can change in its context menu
+  connect(ui.toolBar, &QToolBar::visibilityChanged, this, [this](int visible) {
+    if(!isFullScreen()) { // toolbar is hidden in fullscreen
+      ui.actionToolbar->setChecked(visible);
+    }
+  });
 
   ui.annotationsToolBar->setVisible(settings.isAnnotationsToolbarShown());
   ui.actionAnnotations->setChecked(settings.isAnnotationsToolbarShown());
-  connect(ui.actionAnnotations, &QAction::triggered, [this](int checked) {
+  connect(ui.actionAnnotations, &QAction::triggered, this, [this](int checked) {
     if(!isFullScreen()) { // annotations toolbar is hidden in fullscreen
       ui.annotationsToolBar->setVisible(checked);
     }
   });
   // annotations toolbar visibility can change in its context menu
-  connect(ui.annotationsToolBar, &QToolBar::visibilityChanged, [this](int visible) {
+  connect(ui.annotationsToolBar, &QToolBar::visibilityChanged, this, [this](int visible) {
     if(!isFullScreen()) { // annotations toolbar is hidden in fullscreen
       ui.actionAnnotations->setChecked(visible);
     }
@@ -142,13 +172,26 @@ MainWindow::MainWindow():
   contextMenu_->addAction(ui.actionSlideShow);
   contextMenu_->addAction(ui.actionFullScreen);
   contextMenu_->addAction(ui.actionShowOutline);
+  contextMenu_->addAction(ui.actionShowExifData);
+  contextMenu_->addAction(ui.actionShowThumbnails);
+  contextMenu_->addSeparator();
+  contextMenu_->addAction(ui.actionMenubar);
+  contextMenu_->addAction(ui.actionToolbar);
   contextMenu_->addAction(ui.actionAnnotations);
   contextMenu_->addSeparator();
   contextMenu_->addAction(ui.actionRotateClockwise);
   contextMenu_->addAction(ui.actionRotateCounterclockwise);
   contextMenu_->addAction(ui.actionFlipHorizontal);
   contextMenu_->addAction(ui.actionFlipVertical);
-  contextMenu_->addAction(ui.actionFlipVertical);
+
+  auto sortGroup = new QActionGroup(ui.menu_View);
+  sortGroup->setExclusive(true);
+  sortGroup->addAction(ui.actionByFileName);
+  sortGroup->addAction(ui.actionByMTime);
+  sortGroup->addAction(ui.actionByCrTime);
+  sortGroup->addAction(ui.actionByFileSize);
+  sortGroup->addAction(ui.actionByFileType);
+  connect(ui.menu_View, &QMenu::aboutToShow, this, &MainWindow::sortMenuAboutToShow);
 
   // Open images when MRU items are clicked
   ui.menuRecently_Opened_Files->setMaxItems(settings.maxRecentFiles());
@@ -168,17 +211,31 @@ MainWindow::MainWindow():
   connect(ui.openWithMenu, &QMenu::aboutToShow, this, &MainWindow::createOpenWithMenu);
   connect(ui.openWithMenu, &QMenu::aboutToHide, this, &MainWindow::deleteOpenWithMenu);
 
-  // create keyboard shortcuts
-  QShortcut* shortcut = new QShortcut(Qt::Key_Left, this);
+  // create hard-coded keyboard shortcuts; they are set in setShortcuts() if not ambiguous
+  QShortcut* shortcut = new QShortcut(this);
+  hardCodedShortcuts_[Qt::Key_Left] = shortcut;
   connect(shortcut, &QShortcut::activated, this, &MainWindow::on_actionPrevious_triggered);
-  shortcut = new QShortcut(Qt::Key_Backspace, this);
+  shortcut = new QShortcut(this);
+  hardCodedShortcuts_[Qt::Key_Backspace] = shortcut;
   connect(shortcut, &QShortcut::activated, this, &MainWindow::on_actionPrevious_triggered);
-  shortcut = new QShortcut(Qt::Key_Right, this);
+  shortcut = new QShortcut(this);
+  hardCodedShortcuts_[Qt::Key_Right] = shortcut;
   connect(shortcut, &QShortcut::activated, this, &MainWindow::on_actionNext_triggered);
-  shortcut = new QShortcut(Qt::Key_Space, this);
+  shortcut = new QShortcut(this);
+  hardCodedShortcuts_[Qt::Key_Space] = shortcut;
   connect(shortcut, &QShortcut::activated, this, &MainWindow::on_actionNext_triggered);
-  shortcut = new QShortcut(Qt::Key_Escape, this);
+  shortcut = new QShortcut(this);
+  hardCodedShortcuts_[Qt::Key_Home] = shortcut; // already in GUI but will be forced if removed
+  connect(shortcut, &QShortcut::activated, this, &MainWindow::on_actionFirst_triggered);
+  shortcut = new QShortcut(this);
+  hardCodedShortcuts_[Qt::Key_End] = shortcut; // already in GUI but will be forced if removed
+  connect(shortcut, &QShortcut::activated, this, &MainWindow::on_actionLast_triggered);
+  shortcut = new QShortcut(this);
+  hardCodedShortcuts_[Qt::Key_Escape] = shortcut;
   connect(shortcut, &QShortcut::activated, this, &MainWindow::onKeyboardEscape);
+
+  // set custom and hard-coded shortcuts
+  setShortcuts();
 }
 
 MainWindow::~MainWindow() {
@@ -200,13 +257,36 @@ MainWindow::~MainWindow() {
   app->removeWindow();
 }
 
+void MainWindow::on_actionMenubar_triggered(bool checked) {
+  if(!checked) {
+    // If menubar is hidden, shortcut keys inside menus will be disabled. Therefore,
+    // we need to add menubar actions manually to enable shortcuts before hiding menubar.
+    addActions(ui.menubar->actions());
+    ui.menubar->setVisible(false);
+  }
+  else if(!isFullScreen()) { // menubar is hidden in fullscreen
+    ui.menubar->setVisible(true);
+    // when menubar is shown again, remove the previously added actions.
+    const auto _actions = ui.menubar->actions();
+    for(const auto& action : _actions) {
+      removeAction(action);
+    }
+  }
+}
+
 void MainWindow::on_actionAbout_triggered() {
   QMessageBox::about(this, tr("About"),
-                     tr("LXImage-Qt - a simple and fast image viewer\n\n"
-                     "Copyright (C) 2013\n"
-                     "LXQt Project: https://lxqt.org/\n\n"
-                     "Authors:\n"
-                     "Hong Jen Yee (PCMan) <pcman.tw@gmail.com>"));
+                     QStringLiteral("<center><b><big>LXImage-Qt %1</big></b></center><br>").arg(qApp->applicationVersion())
+                     + tr("A simple and fast image viewer")
+                     + QStringLiteral("<br><br>")
+                     + tr("Copyright (C) ") + tr("2013-2021")
+                     + QStringLiteral("<br><a href='https://lxqt-project.org'>")
+                     + tr("LXQt Project")
+                     + QStringLiteral("</a><br><br>")
+                     + tr("Development: ")
+                     + QStringLiteral("<a href='https://github.com/lxqt/lximage-qt'>https://github.com/lxqt/lximage-qt</a><br><br>")
+                     + tr("Author: ")
+                     + QStringLiteral("<a href='mailto:pcman.tw@gmail.com?Subject=My%20Subject'>Hong Jen Yee (PCMan)</a>"));
 }
 
 void MainWindow::on_actionOriginalSize_triggered() {
@@ -214,6 +294,25 @@ void MainWindow::on_actionOriginalSize_triggered() {
     ui.view->setAutoZoomFit(false);
     ui.view->zoomOriginal();
   }
+}
+
+void MainWindow::on_actionHiddenShortcuts_triggered() {
+    class HiddenShortcutsDialog : public QDialog {
+    public:
+        explicit HiddenShortcutsDialog(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags())
+            : QDialog(parent, f) {
+            ui.setupUi(this);
+            ui.treeWidget->setRootIsDecorated(false);
+            ui.treeWidget->header()->setSectionResizeMode(QHeaderView::Stretch);
+            ui.treeWidget->header()->setSectionsClickable(true);
+            ui.treeWidget->sortByColumn(0, Qt::AscendingOrder);
+            ui.treeWidget->setSortingEnabled(true);
+        }
+    private:
+        Ui::HiddenShortcutsDialog ui;
+    };
+    HiddenShortcutsDialog dialog(this);
+    dialog.exec();
 }
 
 void MainWindow::on_actionZoomFit_triggered() {
@@ -262,6 +361,63 @@ void MainWindow::on_actionDrawNumber_triggered() {
   ui.view->activateTool(ImageView::ToolNumber);
 }
 
+void MainWindow::on_actionByFileName_triggered(bool /*checked*/) {
+  proxyModel_->sort(Fm::FolderModel::ColumnFileName, Qt::AscendingOrder);
+}
+
+void MainWindow::on_actionByMTime_triggered(bool /*checked*/) {
+  proxyModel_->sort(Fm::FolderModel::ColumnFileMTime, Qt::AscendingOrder);
+}
+
+void MainWindow::on_actionByCrTime_triggered(bool /*checked*/) {
+  proxyModel_->sort(Fm::FolderModel::ColumnFileCrTime, Qt::AscendingOrder);
+}
+
+void MainWindow::on_actionByFileSize_triggered(bool /*checked*/) {
+  proxyModel_->sort(Fm::FolderModel::ColumnFileSize, Qt::AscendingOrder);
+}
+
+void MainWindow::on_actionByFileType_triggered(bool /*checked*/) {
+  proxyModel_->sort(Fm::FolderModel::ColumnFileType, Qt::AscendingOrder);
+}
+
+void MainWindow::onSortFilterChanged() {
+  // update currentIndex_ and scroll to it in thumbnails view
+  if(currentFile_)
+    currentIndex_ = indexFromPath(currentFile_);
+  if(thumbnailsView_ && currentIndex_.isValid()) {
+    thumbnailsView_->childView()->scrollTo(currentIndex_, QAbstractItemView::EnsureVisible);
+  }
+  // remember the sorting if possible
+  static_cast<Application*>(qApp)->settings().setSorting(static_cast<Fm::FolderModel::ColumnId>(proxyModel_->sortColumn()));
+}
+
+// This is needed only because sorting may be changed from inside the thumbnails view.
+void MainWindow::sortMenuAboutToShow() {
+  auto sortColumn = proxyModel_->sortColumn();
+  if(sortColumn == Fm::FolderModel::ColumnFileName) {
+    ui.actionByFileName->setChecked(true);
+  }
+  else if(sortColumn == Fm::FolderModel::ColumnFileMTime) {
+    ui.actionByMTime->setChecked(true);
+  }
+  else if(sortColumn == Fm::FolderModel::ColumnFileCrTime) {
+    ui.actionByCrTime->setChecked(true);
+  }
+  else if(sortColumn == Fm::FolderModel::ColumnFileSize) {
+    ui.actionByFileSize->setChecked(true);
+  }
+  else if(sortColumn == Fm::FolderModel::ColumnFileType) {
+    ui.actionByFileType->setChecked(true);
+  }
+  else { // sorting is not supported
+    ui.actionByFileName->setChecked(false);
+    ui.actionByMTime->setChecked(false);
+    ui.actionByCrTime->setChecked(false);
+    ui.actionByFileSize->setChecked(false);
+    ui.actionByFileType->setChecked(false);
+  }
+}
 
 void MainWindow::onFolderLoaded() {
   // if currently we're showing a file, get its index in the folder now
@@ -431,7 +587,7 @@ void MainWindow::on_actionNewWindow_triggered() {
   window->resize(app->settings().windowWidth(), app->settings().windowHeight());
 
   if(app->settings().windowMaximized())
-        window->setWindowState(window->windowState() | Qt::WindowMaximized);
+    window->setWindowState(window->windowState() | Qt::WindowMaximized);
 
   window->show();
 }
@@ -461,18 +617,19 @@ void MainWindow::on_actionSaveAs_triggered() {
     const Fm::FilePath path = Fm::FilePath::fromPathStr(qPrintable(fileName));
     // save the image file asynchronously
     saveImage(path);
-
-    if(!currentFile_) { // if we haven't loaded any file yet
-      currentFile_ = path;
-      loadFolder(path.parent());
-    }
   }
 }
 
 void MainWindow::on_actionDelete_triggered() {
-  // delete the current file
-  if(currentFile_)
-    Fm::FileOperation::deleteFiles({currentFile_});
+  // delete or trash the current file
+  if(currentFile_) {
+    if(static_cast<Application*>(qApp)->settings().useTrash()) {
+      Fm::FileOperation::trashFiles({currentFile_}, false);
+    }
+    else {
+      Fm::FileOperation::deleteFiles({currentFile_}, true);
+    }
+  }
 }
 
 void MainWindow::on_actionFileProperties_triggered() {
@@ -572,14 +729,26 @@ void MainWindow::onImageLoaded() {
 
     loadJob_ = nullptr; // the job object will be freed later automatically
 
+    Settings& settings = static_cast<Application*>(qApp)->settings();
+
+    int cs = settings.colorSpace();
+    if(cs > 0 && cs < 6) {
+      image_.convertToColorSpace(QColorSpace(static_cast<QColorSpace::NamedColorSpace>(cs)));
+    }
+
+    // set image zoom, like in loadImage()
+    if(settings.forceZoomFit()) {
+      ui.actionZoomFit->setChecked(true);
+    }
     ui.view->setAutoZoomFit(ui.actionZoomFit->isChecked());
     if(ui.actionOriginalSize->isChecked()) {
       ui.view->zoomOriginal();
     }
+
     ui.view->setImage(image_);
 
-   // currentIndex_ should be corrected after loading
-   currentIndex_ = indexFromPath(currentFile_);
+    // currentIndex_ should be corrected after loading
+    currentIndex_ = indexFromPath(currentFile_);
 
     updateUI();
 
@@ -589,14 +758,15 @@ void MainWindow::onImageLoaded() {
       if(startMaximized_) {
         setWindowState(windowState() | Qt::WindowMaximized);
       }
-      show();
+      showAndRaise();
     }
   }
 }
 
 void MainWindow::onImageSaved() {
   if(!saveJob_->failed()) {
-    setModified(false);
+    loadImage(saveJob_->filePath());
+    loadFolder(saveJob_->filePath().parent());
   }
   saveJob_ = nullptr;
 }
@@ -608,11 +778,22 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event) {
       case QEvent::Wheel: { // mouse wheel event
         QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
         if(wheelEvent->modifiers() == 0) {
-          int delta = wheelEvent->delta();
-          if(delta < 0)
-            on_actionNext_triggered(); // next image
-          else
-            on_actionPrevious_triggered(); // previous image
+          QPoint angleDelta = wheelEvent->angleDelta();
+          Qt::Orientation orient = (qAbs(angleDelta.x()) > qAbs(angleDelta.y()) ? Qt::Horizontal : Qt::Vertical);
+          int delta = (orient == Qt::Horizontal ? angleDelta.x() : angleDelta.y());
+          // NOTE: Each turn of a mouse wheel can change the image without problem but
+          // touchpads trigger wheel events with much smaller angle deltas. Therefore,
+          // we wait until a threshold is passed. 120 is an appropriate value because
+          // most mouse types create angle deltas that are multiples of 120.
+          static int deltaThreshold = 0;
+          deltaThreshold += abs(delta);
+          if(deltaThreshold >= 120) {
+            deltaThreshold = 0;
+            if(delta < 0)
+              on_actionNext_triggered(); // next image
+            else
+              on_actionPrevious_triggered(); // previous image
+          }
         }
         break;
       }
@@ -620,23 +801,6 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event) {
         QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
         if(mouseEvent->button() == Qt::LeftButton)
           ui.actionFullScreen->trigger();
-        break;
-      }
-      default:;
-    }
-  }
-  else if(thumbnailsView_ && watched == thumbnailsView_->childView()) {
-    // scroll the thumbnail view with mouse wheel
-    switch(event->type()) {
-      case QEvent::Wheel: { // mouse wheel event
-        QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
-        if(wheelEvent->modifiers() == 0) {
-          int delta = wheelEvent->delta();
-          QScrollBar* hscroll = thumbnailsView_->childView()->horizontalScrollBar();
-          if(hscroll)
-            hscroll->setValue(hscroll->value() - delta);
-          return true;
-        }
         break;
       }
       default:;
@@ -780,7 +944,10 @@ void MainWindow::loadImage(const Fm::FilePath & filePath, QModelIndex index) {
     }
     const Fm::CStrPtr file_name = currentFile_.toString();
 
-    // like in onImageLoaded()
+    // set image zoom, like in onImageLoaded()
+    if(static_cast<Application*>(qApp)->settings().forceZoomFit()) {
+      ui.actionZoomFit->setChecked(true);
+    }
     ui.view->setAutoZoomFit(ui.actionZoomFit->isChecked());
     if(ui.actionOriginalSize->isChecked()) {
       ui.view->zoomOriginal();
@@ -796,7 +963,7 @@ void MainWindow::loadImage(const Fm::FilePath & filePath, QModelIndex index) {
       if(startMaximized_) {
         setWindowState(windowState() | Qt::WindowMaximized);
       }
-      show();
+      showAndRaise();
     }
   }
   else {
@@ -839,58 +1006,18 @@ void MainWindow::saveImage(const Fm::FilePath & filePath) {
 }
 
 void MainWindow::on_actionRotateClockwise_triggered() {
-  QGraphicsItem *imageItem = ui.view->imageGraphicsItem();
-  bool isGifOrSvg ((imageItem && imageItem->isWidget()) // we have gif animation
-                   || dynamic_cast<QGraphicsSvgItem*>(imageItem)); // an SVG image;
   if(!image_.isNull()) {
-    QTransform transform;
-    transform.rotate(90.0);
-    image_ = image_.transformed(transform, Qt::SmoothTransformation);
-    /* when this is GIF or SVG, we need to rotate its corresponding QImage
-       without showing it to have the right measure for auto-zooming */
-    ui.view->setImage(image_, isGifOrSvg ? false : true);
+    ui.view->rotateImage(true);
+    image_ = ui.view->image();
     setModified(true);
-  }
-
-  if(isGifOrSvg) {
-    QTransform transform;
-    transform.translate(imageItem->sceneBoundingRect().height(), 0);
-    transform.rotate(90);
-    // we need to apply transformations in the reverse order
-    QTransform prevTrans = imageItem->transform();
-    imageItem->setTransform(transform, false);
-    imageItem->setTransform(prevTrans, true);
-    // apply transformations to the outline item too
-    if(QGraphicsItem *outlineItem = ui.view->outlineGraphicsItem()){
-      outlineItem->setTransform(transform, false);
-      outlineItem->setTransform(prevTrans, true);
-    }
   }
 }
 
 void MainWindow::on_actionRotateCounterclockwise_triggered() {
-  QGraphicsItem *imageItem = ui.view->imageGraphicsItem();
-  bool isGifOrSvg ((imageItem && imageItem->isWidget())
-                   || dynamic_cast<QGraphicsSvgItem*>(imageItem));
   if(!image_.isNull()) {
-    QTransform transform;
-    transform.rotate(-90.0);
-    image_ = image_.transformed(transform, Qt::SmoothTransformation);
-    ui.view->setImage(image_, isGifOrSvg ? false : true);
+    ui.view->rotateImage(false);
+    image_ = ui.view->image();
     setModified(true);
-  }
-
-  if(isGifOrSvg) {
-    QTransform transform;
-    transform.translate(0, imageItem->sceneBoundingRect().width());
-    transform.rotate(-90);
-    QTransform prevTrans = imageItem->transform();
-    imageItem->setTransform(transform, false);
-    imageItem->setTransform(prevTrans, true);
-    if(QGraphicsItem *outlineItem = ui.view->outlineGraphicsItem()){
-      outlineItem->setTransform(transform, false);
-      outlineItem->setTransform(prevTrans, true);
-    }
   }
 }
 
@@ -912,6 +1039,21 @@ void MainWindow::on_actionCopyPath_triggered() {
   if(currentFile_) {
     const Fm::CStrPtr dispName = currentFile_.displayName();
     QApplication::clipboard()->setText(QString::fromUtf8(dispName.get()));
+  }
+}
+
+void MainWindow::on_actionRenameFile_triggered() {
+  // rename inline if the thumbnail bar is shown; otherwise, show the rename dialog
+  if(!currentIndex_.isValid()) {
+    return;
+  }
+  if(thumbnailsView_ && thumbnailsView_->isVisible()) {
+    QAbstractItemView* view = thumbnailsView_->childView();
+    view->scrollTo(currentIndex_);
+    view->edit(currentIndex_);
+  }
+  else if(const auto file = proxyModel_->fileInfoFromIndex(currentIndex_)) {
+    Fm::renameFile(file, this);
   }
 }
 
@@ -953,45 +1095,17 @@ void MainWindow::on_actionUpload_triggered()
 }
 
 void MainWindow::on_actionFlipVertical_triggered() {
-  bool hasQGraphicsItem(false);
-  if(QGraphicsItem *imageItem = ui.view->imageGraphicsItem()) {
-    hasQGraphicsItem = true;
-    QTransform transform;
-    transform.scale(1, -1);
-    transform.translate(0, -imageItem->sceneBoundingRect().height());
-    QTransform prevTrans = imageItem->transform();
-    imageItem->setTransform(transform, false);
-    imageItem->setTransform(prevTrans, true);
-    if(QGraphicsItem *outlineItem = ui.view->outlineGraphicsItem()){
-      outlineItem->setTransform(transform, false);
-      outlineItem->setTransform(prevTrans, true);
-    }
-  }
   if(!image_.isNull()) {
-    image_ = image_.mirrored(false, true);
-    ui.view->setImage(image_, !hasQGraphicsItem);
+    ui.view->flipImage(false);
+    image_ = ui.view->image();
     setModified(true);
   }
 }
 
 void MainWindow::on_actionFlipHorizontal_triggered() {
-  bool hasQGraphicsItem(false);
-  if(QGraphicsItem *imageItem = ui.view->imageGraphicsItem()) {
-    hasQGraphicsItem = true;
-    QTransform transform;
-    transform.scale(-1, 1);
-    transform.translate(-imageItem->sceneBoundingRect().width(), 0);
-    QTransform prevTrans = imageItem->transform();
-    imageItem->setTransform(transform, false);
-    imageItem->setTransform(prevTrans, true);
-    if(QGraphicsItem *outlineItem = ui.view->outlineGraphicsItem()){
-      outlineItem->setTransform(transform, false);
-      outlineItem->setTransform(prevTrans, true);
-    }
-  }
   if(!image_.isNull()) {
-    image_ = image_.mirrored(true, true);
-    ui.view->setImage(image_, !hasQGraphicsItem);
+    ui.view->flipImage(true);
+    image_ = ui.view->image();
     setModified(true);
   }
 }
@@ -1000,53 +1114,21 @@ void MainWindow::on_actionResize_triggered() {
   if(image_.isNull()) {
     return;
   }
-  QGraphicsItem *imageItem = ui.view->imageGraphicsItem();
-  bool isSVG(dynamic_cast<QGraphicsSvgItem*>(imageItem));
-  bool isGifOrSvg(isSVG || (imageItem && imageItem->isWidget()));
-  QSize imgSize(image_.size());
   ResizeImageDialog *dialog = new ResizeImageDialog(this);
   dialog->setOriginalSize(image_.size());
   if(dialog->exec() == QDialog::Accepted) {
     QSize newSize = dialog->scaledSize();
-    if(!isSVG) { // with SVG, we get a sharp image below
-      image_ = image_.scaled(newSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-      ui.view->setImage(image_, isGifOrSvg ? false : true);
+    if(ui.view->resizeImage(newSize)) {
+      image_ = ui.view->image();
+      setModified(true);
     }
-    if(isGifOrSvg) {
-      qreal sx = static_cast<qreal>(newSize.width()) / imgSize.width();
-      qreal sy = static_cast<qreal>(newSize.height()) / imgSize.height();
-      QTransform transform;
-      transform.scale(sx, sy);
-      QTransform prevTrans = imageItem->transform();
-      imageItem->setTransform(transform, false);
-      imageItem->setTransform(prevTrans, true);
-      if(QGraphicsItem *outlineItem = ui.view->outlineGraphicsItem()) {
-        outlineItem->setTransform(transform, false);
-        outlineItem->setTransform(prevTrans, true);
-      }
-
-      if(isSVG) {
-        // create and set a sharp scaled image with SVG
-        QPixmap pixmap(newSize);
-        pixmap.fill(Qt::transparent);
-        QPainter painter(&pixmap);
-        painter.setTransform(imageItem->transform());
-        painter.setRenderHint(QPainter::Antialiasing);
-        QStyleOptionGraphicsItem opt;
-        imageItem->paint(&painter, &opt);
-        image_ = pixmap.toImage();
-        ui.view->setImage(image_, false);
-      }
-    }
-
-    setModified(true);
   }
   dialog->deleteLater();
 }
 
 void MainWindow::setModified(bool modified) {
   imageModified_ = modified;
-  updateUI();
+  updateUI(); // should be done even if imageModified_ is not changed (because of transformations)
 }
 
 void MainWindow::applySettings() {
@@ -1057,21 +1139,72 @@ void MainWindow::applySettings() {
   else
     ui.view->setBackgroundBrush(QBrush(settings.bgColor()));
   ui.view->updateOutline();
+  ui.view->setSmoothOnZoom(settings.smoothOnZoom());
   ui.menuRecently_Opened_Files->setMaxItems(settings.maxRecentFiles());
 
   // also, update shortcuts
-  QHash<QString, QString> ca = settings.customShortcutActions();
-  const auto defaultShortcuts = app->defaultShortcuts();
+  setShortcuts(true);
+}
+
+// Sets or updates shortcuts.
+void MainWindow::setShortcuts(bool update) {
+  Application* app = static_cast<Application*>(qApp);
   const auto actions = findChildren<QAction*>();
+
+  // get default shortcuts if this is the first window
+  if(app->defaultShortcuts().isEmpty()) {
+    QHash<QString, Application::ShortcutDescription> defaultShortcuts;
+    for(const auto& action : actions) {
+      if(action->objectName().isEmpty() || action->text().isEmpty()) {
+        continue;
+      }
+      QKeySequence seq = action->shortcut();
+      Application::ShortcutDescription s;
+      s.displayText = action->text().remove(QLatin1Char('&')); // without mnemonics
+      s.shortcut = seq;
+      defaultShortcuts.insert(action->objectName(), s);
+    }
+    app->setDefaultShortcuts(defaultShortcuts);
+  }
+
+  auto hardCodedShortcuts = hardCodedShortcuts_;
+
+  // set custom shortcuts
+  QHash<QString, QString> ca = app->settings().customShortcutActions();
   for(const auto& action : actions) {
-     const QString objectName = action->objectName();
-     if(ca.contains(objectName)) {
-       // custom shortcuts are saved in the PortableText format
-       action->setShortcut(QKeySequence(ca.value(objectName), QKeySequence::PortableText));
-     }
-     else { // default shortcuts include all actions
-       action->setShortcut(defaultShortcuts.value(objectName).shortcut);
-     }
+    const QString objectName = action->objectName();
+    if(ca.contains(objectName)) {
+      // custom shortcuts are saved in the PortableText format
+      auto keySeq = QKeySequence(ca.take(objectName), QKeySequence::PortableText);
+      action->setShortcut(keySeq);
+      if(!hardCodedShortcuts.isEmpty()) {
+        for(int i = 0; i < keySeq.count(); ++i) {
+          if(hardCodedShortcuts.contains(keySeq[i])) { // would be ambiguous
+            hardCodedShortcuts.take(keySeq[i])->setKey(QKeySequence());
+          }
+        }
+      }
+    }
+    else if (update) { // restore default shortcuts
+      action->setShortcut(app->defaultShortcuts().value(objectName).shortcut);
+    }
+    if(!update && ca.isEmpty()) {
+      break;
+    }
+  }
+
+  // set unambiguous hard-coded shortcuts too
+  // but force Home and End keys if they are not action shortcuts
+  if(hardCodedShortcuts.contains(Qt::Key_Home) && ui.actionFirst->shortcut() == QKeySequence(Qt::Key_Home)) {
+    hardCodedShortcuts.take(Qt::Key_Home)->setKey(QKeySequence());
+  }
+  if(hardCodedShortcuts.contains(Qt::Key_End) && ui.actionLast->shortcut() == QKeySequence(Qt::Key_End)) {
+    hardCodedShortcuts.take(Qt::Key_End)->setKey(QKeySequence());
+  }
+  QMap<int, QShortcut*>::const_iterator it = hardCodedShortcuts.constBegin();
+  while (it != hardCodedShortcuts.constEnd()) {
+    it.value()->setKey(QKeySequence(it.key()));
+    ++it;
   }
 }
 
@@ -1119,11 +1252,8 @@ void MainWindow::on_actionPrint_triggered() {
 }
 
 // TODO: This can later be used for doing slide show
-void MainWindow::on_actionFullScreen_triggered(bool checked) {
-  if(checked)
-    showFullScreen();
-  else
-    showNormal();
+void MainWindow::on_actionFullScreen_triggered(bool /*checked*/) {
+  setWindowState(windowState() ^ Qt::WindowFullScreen);
 }
 
 void MainWindow::on_actionSlideShow_triggered(bool checked) {
@@ -1157,29 +1287,48 @@ void MainWindow::on_actionShowOutline_triggered(bool checked) {
 
 void MainWindow::on_actionShowExifData_triggered(bool checked) {
   setShowExifData(checked);
+  if(checked && exifDataDock_) {
+    exifDataDock_->show(); // needed in the full-screen state
+  }
 }
 
 void MainWindow::setShowThumbnails(bool show) {
+  Settings& settings = static_cast<Application*>(qApp)->settings();
+
   if(show) {
     if(!thumbnailsDock_) {
       thumbnailsDock_ = new QDockWidget(this);
       thumbnailsDock_->setFeatures(QDockWidget::NoDockWidgetFeatures); // FIXME: should use DockWidgetClosable
       thumbnailsDock_->setWindowTitle(tr("Thumbnails"));
       thumbnailsView_ = new Fm::FolderView(Fm::FolderView::IconMode);
-      thumbnailsView_->setIconSize(Fm::FolderView::IconMode, QSize(64, 64));
+      thumbnailsView_->setIconSize(Fm::FolderView::IconMode, QSize(settings.thumbnailSize(), settings.thumbnailSize()));
       thumbnailsView_->setAutoSelectionDelay(0);
       thumbnailsDock_->setWidget(thumbnailsView_);
-      addDockWidget(Qt::BottomDockWidgetArea, thumbnailsDock_);
+      addDockWidget(settings.thumbnailsPosition(), thumbnailsDock_);
       QListView* listView = static_cast<QListView*>(thumbnailsView_->childView());
-      listView->setFlow(QListView::TopToBottom);
-      listView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
       listView->setSelectionMode(QAbstractItemView::SingleSelection);
-      listView->installEventFilter(this);
-      // FIXME: optimize the size of the thumbnail view
-      // FIXME if the thumbnail view is docked elsewhere, update the settings.
-      if(Fm::FolderItemDelegate* delegate = static_cast<Fm::FolderItemDelegate*>(listView->itemDelegateForColumn(Fm::FolderModel::ColumnFileName))) {
-        int scrollHeight = style()->pixelMetric(QStyle::PM_ScrollBarExtent);
-        thumbnailsView_->setFixedHeight(delegate->itemSize().height() + scrollHeight);
+      Fm::FolderItemDelegate* delegate = static_cast<Fm::FolderItemDelegate*>(listView->itemDelegateForColumn(Fm::FolderModel::ColumnFileName));
+      int frameWidth = thumbnailsView_->style()->pixelMetric(QStyle::PM_DefaultFrameWidth, nullptr, thumbnailsView_);
+      int scrollBarExtent = thumbnailsView_->style()->styleHint(QStyle::SH_ScrollBar_Transient, nullptr, thumbnailsView_) ?
+                            0 : thumbnailsView_->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+      switch(settings.thumbnailsPosition()) {
+        case Qt::LeftDockWidgetArea:
+        case Qt::RightDockWidgetArea:
+          listView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+          listView->setFlow(QListView::LeftToRight);
+          if(delegate) {
+            thumbnailsView_->setFixedWidth(delegate->itemSize().width() + 2 * frameWidth + scrollBarExtent);
+          }
+          break;
+        case Qt::TopDockWidgetArea:
+        case Qt::BottomDockWidgetArea:
+        default:
+          listView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+          listView->setFlow(QListView::TopToBottom);
+          if(delegate) {
+            thumbnailsView_->setFixedHeight(delegate->itemSize().height() + 2 * frameWidth + scrollBarExtent);
+          }
+          break;
       }
       thumbnailsView_->setModel(proxyModel_);
       proxyModel_->setShowThumbnails(true);
@@ -1193,6 +1342,10 @@ void MainWindow::setShowThumbnails(bool show) {
       connect(thumbnailsView_->selectionModel(), &QItemSelectionModel::selectionChanged,
               this, &MainWindow::onThumbnailSelChanged);
     }
+    else if (!thumbnailsDock_->isVisible()) {
+      thumbnailsDock_->show();
+      ui.actionShowThumbnails->setChecked(true);
+    }
   }
   else {
     if(thumbnailsDock_) {
@@ -1205,22 +1358,50 @@ void MainWindow::setShowThumbnails(bool show) {
   }
 }
 
+void MainWindow::updateThumbnails() {
+  if(thumbnailsView_ == nullptr) {
+    return;
+  }
+  int thumbSize = static_cast<Application*>(qApp)->settings().thumbnailSize();
+  QSize newSize(thumbSize, thumbSize);
+  if(thumbnailsView_->iconSize(Fm::FolderView::IconMode) == newSize) {
+    return;
+  }
+
+  thumbnailsView_->setIconSize(Fm::FolderView::IconMode, newSize);
+  QListView* listView = static_cast<QListView*>(thumbnailsView_->childView());
+  if(Fm::FolderItemDelegate* delegate = static_cast<Fm::FolderItemDelegate*>(listView->itemDelegateForColumn(Fm::FolderModel::ColumnFileName))) {
+    int frameWidth = thumbnailsView_->style()->pixelMetric(QStyle::PM_DefaultFrameWidth, nullptr, thumbnailsView_);
+    int scrollBarExtent = thumbnailsView_->style()->styleHint(QStyle::SH_ScrollBar_Transient, nullptr, thumbnailsView_) ?
+                          0 : thumbnailsView_->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+    if(listView->flow() == QListView::LeftToRight) {
+      thumbnailsView_->setFixedWidth(delegate->itemSize().width() + 2 * frameWidth + scrollBarExtent);
+    }
+    else {
+      thumbnailsView_->setFixedHeight(delegate->itemSize().height() + 2 * frameWidth + scrollBarExtent);
+    }
+  }
+}
+
 void MainWindow::setShowExifData(bool show) {
+  Settings& settings = static_cast<Application*>(qApp)->settings();
   // Close the dock if it exists and show is false
-  if (exifDataDock_ && !show) {
-    exifDataDock_->close();
+  if(exifDataDock_ && !show) {
+    settings.setExifDatakWidth(exifDataDock_->width());
+    delete exifDataDock_;
     exifDataDock_ = nullptr;
   }
 
   // Be sure the dock was created before rendering content to it
-  if (show && !exifDataDock_) {
+  if(show && !exifDataDock_) {
     exifDataDock_ = new QDockWidget(tr("EXIF Data"), this);
     exifDataDock_->setFeatures(QDockWidget::NoDockWidgetFeatures);
     addDockWidget(Qt::RightDockWidgetArea, exifDataDock_);
+    resizeDocks({exifDataDock_}, {settings.exifDatakWidth()}, Qt::Horizontal);
   }
 
   // Render the content to the dock
-  if (show) {
+  if(show) {
     QWidget* exifDataDockView_ = new QWidget();
 
     QVBoxLayout* exifDataDockViewContent_ = new QVBoxLayout();
@@ -1237,7 +1418,7 @@ void MainWindow::setShowExifData(bool show) {
 
     // Write the EXIF Data to the table
     const auto keys =exifData_.keys();
-    for (const QString& key : keys) {
+    for(const QString& key : keys) {
       int rowCount = exifDataContentTable_->rowCount();
 
       exifDataContentTable_->insertRow(rowCount);
@@ -1258,46 +1439,53 @@ void MainWindow::setShowExifData(bool show) {
 void MainWindow::changeEvent(QEvent* event) {
   // TODO: hide menu/toolbars in full screen mode and make the background black.
   if(event->type() == QEvent::WindowStateChange) {
-    Application* app = static_cast<Application*>(qApp);
+    Settings& settings = static_cast<Application*>(qApp)->settings();
     if(isFullScreen()) { // changed to fullscreen mode
       ui.view->setFrameStyle(QFrame::NoFrame);
-      ui.view->setBackgroundBrush(QBrush(app->settings().fullScreenBgColor()));
+      ui.view->setBackgroundBrush(QBrush(settings.fullScreenBgColor()));
       ui.view->updateOutline();
       ui.toolBar->hide();
       ui.annotationsToolBar->hide();
       ui.statusBar->hide();
-      if(thumbnailsDock_)
+      // It's logical to hide the thumbnail dock on full-screening. The user could show it
+      // in the full-screen mode explicitly.
+      if(thumbnailsDock_) {
         thumbnailsDock_->hide();
-      // NOTE: in fullscreen mode, all shortcut keys in the menu are disabled since the menu
-      // is disabled. We needs to add the actions to the main window manually to enable the
-      // shortcuts again.
-      ui.menubar->hide();
-      const auto actions = ui.menubar->actions();
-      for(QAction* action : qAsConst(actions)) {
-        if(!action->shortcut().isEmpty())
-          addAction(action);
+        ui.actionShowThumbnails->setChecked(false);
       }
-      addActions(ui.menubar->actions());
+      if(exifDataDock_) {
+        settings.setExifDatakWidth(exifDataDock_->width()); // the user may have resized it
+        exifDataDock_->hide();
+        ui.actionShowExifData->setChecked(false);
+      }
+      // menubar is hidden in fullscreen mode but we need its menu shortcuts
+      on_actionMenubar_triggered(false);
       ui.view->hideCursor(true);
     }
     else { // restore to normal window mode
       ui.view->setFrameStyle(QFrame::StyledPanel|QFrame::Sunken);
-      ui.view->setBackgroundBrush(QBrush(app->settings().bgColor()));
+      ui.view->setBackgroundBrush(QBrush(settings.bgColor()));
       ui.view->updateOutline();
-      // now we're going to re-enable the menu, so remove the actions previously added.
-      const auto actions_ = ui.menubar->actions();
-      for(QAction* action : qAsConst(actions_)) {
-        if(!action->shortcut().isEmpty())
-          removeAction(action);
+      if(ui.actionMenubar->isChecked()) {
+        on_actionMenubar_triggered(true);
       }
-      ui.menubar->show();
-      ui.toolBar->show();
+      if(ui.actionToolbar->isChecked()){
+        ui.toolBar->show();
+      }
       if(ui.actionAnnotations->isChecked()){
-          ui.annotationsToolBar->show();
+        ui.annotationsToolBar->show();
       }
       ui.statusBar->show();
-      if(thumbnailsDock_)
+      if(thumbnailsDock_) {
+        // The thumbnail dock exists but was hidden on full-screening. So, it should be restored.
         thumbnailsDock_->show();
+        ui.actionShowThumbnails->setChecked(true);
+      }
+      if(exifDataDock_) {
+        // The exif data dock exists but was hidden on full-screening. So, it should be restored.
+        exifDataDock_->show();
+        ui.actionShowExifData->setChecked(true);
+      }
       ui.view->hideCursor(false);
     }
   }
@@ -1321,6 +1509,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
   QWidget::closeEvent(event);
   Settings& settings = static_cast<Application*>(qApp)->settings();
+  if(exifDataDock_) {
+    settings.setExifDatakWidth(exifDataDock_->width());
+  }
   if(settings.rememberWindowSize()) {
     settings.setLastWindowMaximized(isMaximized());
 
@@ -1425,4 +1616,21 @@ void MainWindow::deleteOpenWithMenu() {
   if(fileMenu_) {
     fileMenu_->deleteLater();
   }
+}
+
+void MainWindow::showAndRaise() {
+    if(showFullScreen_) {
+      showFullScreen();
+      ui.actionFullScreen->setChecked(true);
+    }
+    else {
+      show();
+    }
+    raise();
+    activateWindow();
+    QTimer::singleShot (100, this, [this]() { // steal the focus forcefully
+      if(QWindow *win = windowHandle()){
+        win->requestActivate();
+      }
+    });
 }

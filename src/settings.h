@@ -26,6 +26,8 @@
 #include <qcache.h>
 #include <QColor>
 #include <QSize>
+#include <libfm-qt/core/thumbnailjob.h>
+#include <libfm-qt/foldermodel.h>
 
 namespace LxImage {
 
@@ -63,11 +65,51 @@ public:
     fullScreenBgColor_ = color;
   }
 
+  bool showExifData() const {
+    return showExifData_;
+  }
+  void setShowExifData(bool show) {
+    showExifData_ = show;
+  }
+
+  int exifDatakWidth() const {
+    return exifDatakWidth_;
+  }
+  void setExifDatakWidth(int width) {
+    exifDatakWidth_ = width;
+  }
+
   bool showThumbnails() const {
     return showThumbnails_;
   }
   void setShowThumbnails(bool show) {
     showThumbnails_ = show;
+  }
+
+  Qt::DockWidgetArea thumbnailsPosition() const {
+    return thumbnailsPosition_;
+  }
+  void setThumbnailsPosition(int pos);
+
+  int maxThumbnailFileSize() const {
+    return Fm::ThumbnailJob::maxThumbnailFileSize();
+  }
+
+  void setMaxThumbnailFileSize(int size) {
+    Fm::ThumbnailJob::setMaxThumbnailFileSize(size);
+  }
+
+  const QList<int>& thumbnailSizes() const;
+  int thumbnailSize() const {
+    return thumbnailSize_;
+  }
+  void setThumbnailSize(int size) {
+    if(!thumbnailSizes().contains(thumbnailSize_)) {
+      thumbnailSize_ = 64;
+    }
+    else {
+      thumbnailSize_ = size;
+    }
   }
 
   bool showSidePane() const {
@@ -161,12 +203,56 @@ public:
     showOutline_ = show;
   }
 
+  bool isToolbarShown() const {
+    return showToolbar_;
+  }
+
+  void showToolbar(bool show) {
+    showToolbar_ = show;
+  }
+
+  bool isMenubarShown() const {
+    return showMenubar_;
+  }
+  void showMenubar(bool show) {
+    showMenubar_ = show;
+  }
+
   bool isAnnotationsToolbarShown() const {
     return showAnnotationsToolbar_;
   }
 
   void showAnnotationsToolbar(bool show) {
     showAnnotationsToolbar_ = show;
+  }
+
+  bool forceZoomFit() const {
+    return forceZoomFit_;
+  }
+
+  void setForceZoomFit(bool on) {
+    forceZoomFit_ = on;
+  }
+
+  bool smoothOnZoom() const {
+    return smoothOnZoom_;
+  }
+  void setSmoothOnZoom(bool on) {
+    smoothOnZoom_ = on;
+  }
+
+  bool useTrash() const {
+    return useTrash_;
+  }
+  void setUseTrash(bool on) {
+    useTrash_ = on;
+  }
+
+  int colorSpace() const {
+    return colorSpace_;
+  }
+  void setColorSpace(int cs) {
+    colorSpace_ = cs;
   }
 
   QSize getPrefSize() const {
@@ -187,11 +273,26 @@ public:
     removedActions_ << action;
   }
 
+  Fm::FolderModel::ColumnId sorting() const {
+    return sorting_;
+  }
+  void setSorting(Fm::FolderModel::ColumnId sorting) {
+    sorting_ = sorting;
+  }
+
+private:
+  QString thumbnailsPositionToString() const;
+  void thumbnailsPositionFromString(const QString& str);
+
 private:
   bool useFallbackIconTheme_;
   QColor bgColor_;
   QColor fullScreenBgColor_;
+  bool showExifData_;
+  int exifDatakWidth_;
   bool showThumbnails_;
+  int thumbnailSize_;
+  Qt::DockWidgetArea thumbnailsPosition_;
   bool showSidePane_;
   int slideShowInterval_;
   QString fallbackIconTheme_;
@@ -205,12 +306,20 @@ private:
   int lastWindowHeight_;
   bool lastWindowMaximized_;
   bool showOutline_;
+  bool showMenubar_;
+  bool showToolbar_;
   bool showAnnotationsToolbar_;
+  bool forceZoomFit_;
+  bool smoothOnZoom_;
+  bool useTrash_;
+  int colorSpace_;
 
   QSize prefSize_;
 
   QHash<QString, QString> actions_;
   QStringList removedActions_;
+
+  Fm::FolderModel::ColumnId sorting_;
 };
 
 }

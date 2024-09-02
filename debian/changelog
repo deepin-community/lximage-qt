@@ -1,3 +1,123 @@
+lximage-qt (1.4.0-2) unstable; urgency=medium
+
+  * Merge to unstable.
+  * d/copyright: Update copyright year.
+
+ -- ChangZhuo Chen (陳昌倬) <czchen@debian.org>  Fri, 10 May 2024 07:29:24 +0800
+
+lximage-qt (1.4.0-1) experimental; urgency=medium
+
+  * New upstream version 1.4.0.
+  * debian/control: build-deps on libfm-qt-dev (>= 1.4.0~).
+  * debian/upstream/metadata: drop obsolete field Name.
+  * debian/upstream/metadata: correct the git Repository url as itʼs
+    different from Repository-Browse.
+
+ -- Andrew Lee (李健秋) <ajqlee@debian.org>  Tue, 12 Dec 2023 15:11:11 +0100
+
+lximage-qt (1.3.0-3) unstable; urgency=medium
+
+  * Suppress blhc errors.
+
+ -- ChangZhuo Chen (陳昌倬) <czchen@debian.org>  Mon, 11 Sep 2023 23:33:08 +0800
+
+lximage-qt (1.3.0-2) unstable; urgency=medium
+
+  * Merge to unstable.
+
+ -- ChangZhuo Chen (陳昌倬) <czchen@debian.org>  Thu, 27 Jul 2023 09:04:53 +0800
+
+lximage-qt (1.3.0-1) experimental; urgency=medium
+
+  * New upstream releases.
+  * Bump Standards-Version to 4.6.2.
+  * Change team email to <team+lxqt@tracker.debian.org>.
+  * Update d/copyright.
+
+ -- ChangZhuo Chen (陳昌倬) <czchen@debian.org>  Mon, 19 Jun 2023 18:33:39 +0800
+
+lximage-qt (1.2.0-2) unstable; urgency=medium
+
+  * Merge to unstable.
+
+ -- ChangZhuo Chen (陳昌倬) <czchen@debian.org>  Fri, 02 Dec 2022 13:16:18 +0800
+
+lximage-qt (1.2.0-1) experimental; urgency=medium
+
+  * New upstream release.
+  * Remove unnecessary patch.
+  * Fix d/watch for GitHub.
+  * Sort d/copyright.
+
+ -- ChangZhuo Chen (陳昌倬) <czchen@debian.org>  Wed, 30 Nov 2022 22:07:50 +0800
+
+lximage-qt (1.1.0-2) unstable; urgency=medium
+
+  [ Debian Janitor ]
+  * Remove constraints unnecessary since buster (oldstable):
+    + lximage-qt-l10n: Drop versioned constraint on lximage-qt in Replaces.
+    + lximage-qt-l10n: Drop versioned constraint on lximage-qt in Breaks.
+
+  [ Andrew Lee (李健秋) ]
+  * debian/changelog: clean triming whitespaces.
+  * debian/control: Bumped Standards-Version to 4.6.1, no changes needed.
+  * Reorganize changes from experimental:
+    * debian/copyright: update. fetched from experimental branch.
+    * debian/lintian-overrides: fix overrides for no-manual-page.
+    * Upstreamed patches directory
+    * Upstreamd signing key
+    * debian/lximage-qt.install: ship lximage-qt.metainfo.xml.
+  * debian/lximage-qt.install: sort shipped files.
+  * debian/rules: Remove unnecessary -Wl,--as-needed.
+  * debian/rules: Drop --fail-missing argument to dh_missing which is now
+    default in debhelper 13.
+  * debian/upstream/metadata: Change Repository-Browser field to
+    Repository-Browse.
+
+ -- Andrew Lee (李健秋) <ajqlee@debian.org>  Fri, 28 Oct 2022 14:40:53 +0800
+
+lximage-qt (1.1.0-1) experimental; urgency=medium
+
+  [ S. 7 ]
+  * New upstream release
+  * Bumped Standards-Version to 4.6.0, no changes needed
+  * Update debian/copyright
+
+  [ Aaron Rainbolt ]
+  * New upstream release.
+  * Removed trailing whitespace from changelog.
+  * Upstreamed packaging changes from Ubuntu, modifying the following files:
+    - control
+    - copyright
+    - lintian-overrides
+    - lximage-qt.install
+    - rules
+    - upstream/*
+    - patches directory
+
+ -- Aaron Rainbolt <arraybolt3@gmail.com>  Wed, 13 Jul 2022 19:06:28 -0500
+
+lximage-qt (1.0.0-1) unstable; urgency=medium
+
+  [ S. 7 ]
+  * New upstream release
+  * Bumped Standards-Version to 4.6.0, no changes needed
+  * Update debian/copyright
+
+  [ Aaron Rainbolt ]
+  * New upstream release.
+  * Removed trailing whitespace from changelog.
+  * Upstreamed packaging changes from Ubuntu, modifying the following files:
+    - control
+    - copyright
+    - lintian-overrides
+    - lximage-qt.install
+    - rules
+    - upstream/*
+    - patches directory
+
+ -- Aaron Rainbolt <arraybolt3@gmail.com>  Wed, 13 Jul 2022 19:06:28 -0500
+
 lximage-qt (0.16.0-1) unstable; urgency=medium
 
   [ Alf Gaida ]

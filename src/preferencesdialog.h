@@ -72,8 +72,11 @@ private Q_SLOTS:
 
 private:
   void initIconThemes(Settings& settings);
+  void initThumbnailSizes(Settings& settings);
+  void initThumbnailsPositions(Settings& settings);
   void initShortcuts();
   void applyNewShortcuts();
+  void updateThumbnails();
   void showWarning(const QString& text, bool temporary = true);
 
 private:
@@ -82,6 +85,7 @@ private:
   QHash<QString, QString> allShortcuts_; // only used for checking ambiguity
   QString permanentWarning_;
   QTimer *warningTimer_;
+  int oldColorSpace_;
 };
 
 }
