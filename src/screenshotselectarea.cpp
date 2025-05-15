@@ -27,15 +27,17 @@ ScreenshotSelectArea::ScreenshotSelectArea(const QImage & image, QWidget* parent
 {
   scene_ = new QGraphicsScene(this);
   scene_->addPixmap(QPixmap::fromImage(image));
-  
+
   view_ = new ScreenshotSelectAreaGraphicsView(scene_, this);
-  view_->setRenderHints( QPainter::Antialiasing );
-  view_->setHorizontalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
-  view_->setVerticalScrollBarPolicy ( Qt::ScrollBarAlwaysOff );
+  view_->setRenderHints(QPainter::Antialiasing);
+  view_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  view_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  view_->setFrameStyle(QFrame::NoFrame);
   view_->show();
   view_->move(0,0);
   view_->resize(image.width(), image.height());
-  setWindowState(windowState() | Qt::WindowFullScreen);
+  setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::X11BypassWindowManagerHint);
+  setGeometry(image.rect());
   connect(view_, &ScreenshotSelectAreaGraphicsView::selectedArea, this, &ScreenshotSelectArea::areaSelected);
 }
 

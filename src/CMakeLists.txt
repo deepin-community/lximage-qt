@@ -27,8 +27,6 @@ set(lximage-qt_SRCS
     mrumenu.cpp
     statusbar.cpp
 
-    upload/imageshackprovider.cpp
-    upload/imageshackupload.cpp
     upload/imgbbprovider.cpp
     upload/imgbbupload.cpp
     upload/imgurprovider.cpp
@@ -40,8 +38,8 @@ set(lximage-qt_SRCS
     resource.qrc
 )
 
-qt5_add_dbus_adaptor(lximage-qt_DBUS_SRCS
-    org.lxde.LxImage.Application.xml
+qt6_add_dbus_adaptor(lximage-qt_DBUS_SRCS
+    org.lxqt.LxImage.Application.xml
     application.h
     LxImage::Application
     applicationadaptor
@@ -55,6 +53,7 @@ set(lximage-qt_UIS
     preferencesdialog.ui
     resizeimagedialog.ui
     screenshotdialog.ui
+    shortcuts.ui
 
     upload/uploaddialog.ui
 )
@@ -77,7 +76,7 @@ set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM true)
 include(LXQtTranslateDesktop)
 
 file(GLOB desktop_files_in ../data/*.desktop.in)
-lxqt_translate_desktop(desktop_files SOURCES ${desktop_files_in})
+lxqt_translate_desktop(desktop_files SOURCES ${desktop_files_in} USE_YAML)
 install(FILES ${desktop_files} DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 
 add_executable(lximage-qt
@@ -92,10 +91,10 @@ add_definitions(
     -DLXIMAGE_VERSION="${LXIMAGE_VERSION}"
 )
 
-set(QT_LIBRARIES Qt5::Widgets Qt5::Network Qt5::Core Qt5::DBus Qt5::PrintSupport Qt5::X11Extras Qt5::Svg)
+set(QT_LIBRARIES Qt6::Widgets Qt6::Network Qt6::Core Qt6::DBus Qt6::PrintSupport Qt6::SvgWidgets Qt6::Svg)
 
 target_link_libraries(lximage-qt
-    fm-qt
+    fm-qt6
     ${QT_LIBRARIES}
     ${EXIF_LIBRARIES}
     ${X11_LIBRARIES}

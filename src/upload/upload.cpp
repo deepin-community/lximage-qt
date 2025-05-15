@@ -29,19 +29,19 @@ Upload::Upload(QNetworkReply *reply)
     mReply->setParent(this);
 
     // Emit progress() when upload progress changes
-    connect(mReply, &QNetworkReply::uploadProgress, [this](qint64 bytesSent, qint64 bytesTotal) {
+    connect(mReply, &QNetworkReply::uploadProgress, this, [this](qint64 bytesSent, qint64 bytesTotal) {
         Q_EMIT progress(static_cast<int>(
             static_cast<double>(bytesSent) / static_cast<double>(bytesTotal) * 100.0
         ));
     });
 
     // Emit error() when a socket error occurs
-    connect(mReply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), [this](QNetworkReply::NetworkError) {
+    connect(mReply, &QNetworkReply::errorOccurred, this, [this](QNetworkReply::NetworkError) {
         Q_EMIT error(mReply->errorString());
     });
 
     // Process the request when it finishes
-    connect(mReply, &QNetworkReply::finished, [this]() {
+    connect(mReply, &QNetworkReply::finished, this, [this]() {
         if (mReply->error() == QNetworkReply::NoError) {
             processReply(mReply->readAll());
         }

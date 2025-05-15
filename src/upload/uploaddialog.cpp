@@ -27,18 +27,11 @@
 #include <QPushButton>
 #include <QVariant>
 
-#include "imageshackprovider.h"
-#include "imgbbprovider.h"
-#include "imgurprovider.h"
 #include "provider.h"
 #include "upload.h"
 #include "uploaddialog.h"
 
 using namespace LxImage;
-
-ImgurProvider gImgurProvider;
-ImgBBProvider gImgBBProvider;
-ImageShackProvider gImageShackProvider;
 
 UploadDialog::UploadDialog(QWidget *parent, const QString &filename)
     : QDialog(parent),
@@ -49,9 +42,10 @@ UploadDialog::UploadDialog(QWidget *parent, const QString &filename)
     ui.setupUi(this);
 
     // Populate the list of providers
-    ui.providerComboBox->addItem(tr("Imgur"), QVariant::fromValue(&gImgurProvider));
-    ui.providerComboBox->addItem(tr("ImgBB"), QVariant::fromValue(&gImgBBProvider));
-    ui.providerComboBox->addItem(tr("ImageShack"), QVariant::fromValue(&gImageShackProvider));
+    mImgurProvider = new ImgurProvider(this);
+    mImgBBProvider = new ImgBBProvider(this);
+    ui.providerComboBox->addItem(tr("Imgur"), QVariant::fromValue(mImgurProvider));
+    ui.providerComboBox->addItem(tr("ImgBB"), QVariant::fromValue(mImgBBProvider));
 
     updateUi();
 }
@@ -63,7 +57,9 @@ void UploadDialog::on_actionButton_clicked()
         start();
         break;
     case UploadInProgress:
-        mUpload->abort();
+        if(mUpload) {
+            mUpload->abort();
+        }
         break;
     case Completed:
         accept();
@@ -91,12 +87,15 @@ void UploadDialog::start()
 
     // Create the upload
     mUpload = provider->upload(&mFile);
+    if(!mUpload) {
+        return;
+    }
 
     // Update the progress bar as the upload progresses
     connect(mUpload, &Upload::progress, ui.progressBar, &QProgressBar::setValue);
 
     // If the request completes, show the link to the user
-    connect(mUpload, &Upload::completed, [this](const QString &url) {
+    connect(mUpload, &Upload::completed, this, [this](const QString &url) {
         ui.linkLineEdit->setText(url);
         ui.linkLineEdit->selectAll();
 
@@ -105,12 +104,12 @@ void UploadDialog::start()
     });
 
     // If the request fails, show an error
-    connect(mUpload, &Upload::error, [this](const QString &message) {
+    connect(mUpload, &Upload::error, this, [this](const QString &message) {
         showError(message);
     });
 
     // Destroy the upload when it completes
-    connect(mUpload, &Upload::finished, [this]() {
+    connect(mUpload, &Upload::finished, this, [this]() {
         mFile.close();
         mUpload->deleteLater();
         mUpload = nullptr;
