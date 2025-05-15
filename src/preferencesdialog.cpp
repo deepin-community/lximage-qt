@@ -83,7 +83,26 @@ PreferencesDialog::PreferencesDialog(QWidget* parent):
   ui.maxRecentFiles->setValue(settings.maxRecentFiles());
   ui.slideShowInterval->setValue(settings.slideShowInterval());
   ui.oulineBox->setChecked(settings.isOutlineShown());
+  ui.menubarBox->setChecked(settings.isMenubarShown());
+  ui.toolbarBox->setChecked(settings.isToolbarShown());
   ui.annotationBox->setChecked(settings.isAnnotationsToolbarShown());
+  ui.forceZoomFitBox->setChecked(settings.forceZoomFit());
+  ui.smoothOnZoomBox->setChecked(settings.smoothOnZoom());
+  ui.useTrashBox->setChecked(settings.useTrash());
+
+  oldColorSpace_ = qBound(0, settings.colorSpace(), 5);
+  ui.colorSpaceComboBox->setCurrentIndex(oldColorSpace_);
+  connect(ui.colorSpaceComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
+    Settings& settings = static_cast<Application*>(qApp)->settings();
+    settings.setColorSpace(index);
+  });
+
+  ui.exifDataBox->setChecked(settings.showExifData());
+  ui.thumbnailBox->setChecked(settings.showThumbnails());
+  // the max. thumbnail size spinbox is in MiB
+  ui.thumbnailSpin->setValue(qBound(0, settings.maxThumbnailFileSize() / 1024, 1024));
+  initThumbnailSizes(settings);
+  initThumbnailsPositions(settings);
 
   // shortcuts
   initShortcuts();
@@ -137,8 +156,21 @@ void PreferencesDialog::accept() {
   settings.setMaxRecentFiles(ui.maxRecentFiles->value());
   settings.setSlideShowInterval(ui.slideShowInterval->value());
   settings.showOutline(ui.oulineBox->isChecked());
+  settings.showMenubar(ui.menubarBox->isChecked());
+  settings.showToolbar(ui.toolbarBox->isChecked());
   settings.showAnnotationsToolbar(ui.annotationBox->isChecked());
+  settings.setForceZoomFit(ui.forceZoomFitBox->isChecked());
+  settings.setSmoothOnZoom(ui.smoothOnZoomBox->isChecked());
+  settings.setUseTrash(ui.useTrashBox->isChecked());
 
+  settings.setShowExifData(ui.exifDataBox->isChecked());
+  settings.setShowThumbnails(ui.thumbnailBox->isChecked());
+  settings.setThumbnailsPosition(ui.thumbnailsPositionComboBox->itemData(ui.thumbnailsPositionComboBox->currentIndex()).toInt());
+  // the max. thumbnail size spinbox is in MiB
+  settings.setMaxThumbnailFileSize(ui.thumbnailSpin->value() * 1024);
+  settings.setThumbnailSize(ui.thumbnailSizeComboBox->itemData(ui.thumbnailSizeComboBox->currentIndex()).toInt());
+
+  updateThumbnails();
   applyNewShortcuts();
   settings.save();
   QDialog::accept();
@@ -164,6 +196,32 @@ static void findIconThemesInDir(QHash<QString, QString>& iconThemes, const QStri
     }
   }
   g_key_file_free(kf);
+}
+
+void PreferencesDialog::initThumbnailSizes(Settings& settings) {
+  int i = 0;
+  for(const auto & size : settings.thumbnailSizes()) {
+    ui.thumbnailSizeComboBox->addItem(QStringLiteral("%1 × %1").arg(size), size);
+    if(settings.thumbnailSize() == size) {
+      ui.thumbnailSizeComboBox->setCurrentIndex(i);
+    }
+    ++i;
+  }
+}
+
+void PreferencesDialog::initThumbnailsPositions(Settings& settings) {
+  ui.thumbnailsPositionComboBox->addItem(tr("Bottom"), Qt::BottomDockWidgetArea);
+  ui.thumbnailsPositionComboBox->addItem(tr("Top"), Qt::TopDockWidgetArea);
+  ui.thumbnailsPositionComboBox->addItem(tr("Left"), Qt::LeftDockWidgetArea);
+
+  Qt::DockWidgetArea pos = settings.thumbnailsPosition();
+  for(int i = 0; i < ui.thumbnailsPositionComboBox->count(); ++i) {
+    if(ui.thumbnailsPositionComboBox->itemData(i).toInt() == pos) {
+      ui.thumbnailsPositionComboBox->setCurrentIndex(i);
+      return;
+    }
+  }
+  ui.thumbnailsPositionComboBox->setCurrentIndex(0);
 }
 
 void PreferencesDialog::initIconThemes(Settings& settings) {
@@ -222,12 +280,12 @@ void PreferencesDialog::showWarning(const QString& text, bool temporary) {
       if(warningTimer_ == nullptr) {
         warningTimer_ = new QTimer();
         warningTimer_->setSingleShot (true);
-        connect(warningTimer_, &QTimer::timeout, [this] {
+        connect(warningTimer_, &QTimer::timeout, this, [this] {
           ui.warningLabel->setText(permanentWarning_);
           ui.warningLabel->setVisible(!permanentWarning_.isEmpty());
         });
       }
-      warningTimer_->start(2500);
+      warningTimer_->start(5000);
     }
   }
 }
@@ -363,6 +421,15 @@ void PreferencesDialog::restoreDefaultShortcuts() {
   ui.defaultButton->setEnabled(false);
 }
 
+void PreferencesDialog::updateThumbnails() {
+  const auto windows = qApp->topLevelWidgets();
+  for(const auto& window : windows) {
+    if(window->inherits("LxImage::MainWindow")) {
+      static_cast<MainWindow*>(window)->updateThumbnails();
+    }
+  }
+}
+
 void PreferencesDialog::applyNewShortcuts() {
   // remember the modified shortcuts if they are different from the default ones
   Application* app = static_cast<Application*>(qApp);
@@ -383,6 +450,11 @@ void PreferencesDialog::done(int r) {
   // remember size
   Settings& settings = static_cast<Application*>(qApp)->settings();
   settings.setPrefSize(size());
+
+  if(r == QDialog::Rejected) {
+    // changes in the color space were applied for the user to see their effects
+    settings.setColorSpace(oldColorSpace_);
+  }
 
   QDialog::done(r);
   deleteLater();
